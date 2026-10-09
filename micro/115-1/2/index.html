@@ -105,7 +105,7 @@ dialog::backdrop{background:#16121bdd}
 <body>
 <nav style="padding:12px 24px;background:#f4f0f8"><a href="./" style="color:#65507f;text-decoration:none">← 病理實習主頁</a></nav>
 <header>
- <h1>切片刷題機<small>94 個案例 · 整片模式／三格模式 · 先認器官再下診斷</small></h1>
+ <h1>切片刷題機<small>27 個案例 · 第 2 次考試 · 整片模式／三格模式 · 先認器官再下診斷</small></h1>
  <div class="controls">
   <select id="scope" aria-label="出題範圍"><option value="">全部講次</option></select>
   <select id="view" aria-label="顯示方式"><option value="full">整片模式</option><option value="three">三格模式</option></select>
@@ -209,7 +209,7 @@ $('#form').onsubmit=e=>{e.preventDefault();const s=cur;$('#show').disabled=true;
  const item=session.items[session.items.length-1];
  revealed=true;if(!full)$('#whole').hidden=false;
  const mine=($('#organ').value||$('#dx').value)?`<div class="mine">你的答案：${esc($('#organ').value)||'—'} ／ ${esc($('#dx').value)||'—'}</div>`:'';
- $('#reveal').innerHTML=`<div><p class="note">${esc(s.id)} · ${s.date.slice(0,2)}/${s.date.slice(2)} ${esc(s.lesson)}</p><h3>${esc(s.organ)} · ${esc(s.diagnosis)}</h3><p class="zh">${esc(s.zh)}</p>${mine}<strong>Description（講義答案頁）</strong><ol>${s.pairs.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>${s.extra.length?`<p class="extra">補充：${s.extra.map(esc).join('；')}</p>`:''}<p><a href="${GUIDE+s.id}" target="_blank" rel="noopener">到切片導讀看這一片 →</a></p>
+ $('#reveal').innerHTML=`<div><p class="note">${esc(s.id)} · ${s.date.startsWith('exam') ? '第 '+s.exam+' 次考試' : s.date.slice(0,2)+'/'+s.date.slice(2)} ${esc(s.lesson)}</p><h3>${esc(s.organ)} · ${esc(s.diagnosis)}</h3><p class="zh">${esc(s.zh)}</p>${mine}<strong>Description（講義答案頁）</strong><ol>${s.pairs.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>${s.extra.length?`<p class="extra">補充：${s.extra.map(esc).join('；')}</p>`:''}<p><a href="${GUIDE+s.id}" target="_blank" rel="noopener">到切片導讀看這一片 →</a></p>
  <div class="grade"><button class="ok" id="g-ok">我答對了</button><button class="bad" id="g-bad">答錯／不確定</button><button class="primary" id="g-next">下一題 →</button></div></div>
 `;
  $('#reveal').className='reveal show';
