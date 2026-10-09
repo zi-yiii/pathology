@@ -3,7 +3,7 @@
 <head><base href="/pathology/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Micro 第2次 · 病理刷題</title>
+<title>A · Stitch · 病理刷題 UI 預覽</title>
 <style>
 :root{--ink:#2c2934;--muted:#6f6a78;--line:#e2dde7;--paper:#f8f6f2;--card:#fff;--purple:#665085;--deep:#30263e;--wash:#efeaf4;--ok:#2f7a5b;--bad:#b0413e;--hl:#ffcc00}
 @media (prefers-color-scheme:dark){:root{--ink:#ece8f2;--muted:#a7a0b2;--line:#3a3442;--paper:#18151c;--card:#221e28;--purple:#b49ad6;--deep:#120f16;--wash:#2b2533;--ok:#6fc29d;--bad:#e07a76}}
@@ -100,12 +100,17 @@ dialog::backdrop{background:#16121bdd}
 
 .detail-nav button[aria-pressed=true]{background:var(--purple);color:#fff;border-color:var(--purple)}
 #detail-marker{border-radius:50%}#detail-canvas{width:min(100%,65vh);margin:auto;cursor:grab}.detail-high .detail-nav{justify-content:center}
+
+:root{color-scheme:light}body{font-size:16px}button,select{min-height:44px}button{transition:background .16s,transform .16s}button:active{transform:translateY(1px)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--purple);outline-offset:3px}header h1{letter-spacing:-.04em;font-size:28px}.controls{font-size:14px}.controls select,.controls button{color:var(--ink);background:var(--card);border-color:var(--line);padding:9px 12px}.stats{color:var(--muted)}#log-btn{background:var(--wash)}#log-btn.unsaved{color:var(--ink);border-color:var(--purple)}.qhead h2{font-size:28px;letter-spacing:-.04em}.qhead p{max-width:56ch;font-size:14px}.whole{margin:0;padding:16px}.whole .map{max-width:760px}.answer-box label{font-size:14px;font-weight:600}.answer-box input{min-height:48px}.whole figcaption,.note{font-size:13px}.preview-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--paper);font-size:14px}.preview-nav a{color:var(--ink);text-decoration:none}.preview-tag{font-size:12px;letter-spacing:.06em;color:var(--muted)}.exam-links{display:flex;gap:6px;margin:20px 0}.exam-links a{display:grid;place-items:center;min-height:44px;min-width:44px;border:1px solid var(--line);border-radius:8px;text-decoration:none}.exam-links a[aria-current]{background:var(--purple);color:white;border-color:var(--purple)}.workspace-label{font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}.detail-grid{align-items:center}.detail-map{border-radius:12px;overflow:hidden}#detailbox{border:1px solid var(--line)}.modalbar{padding:18px 24px}.hint{padding:12px 24px;line-height:1.65}#detail-status{text-align:center}.detail-nav button[aria-pressed=true]{background:var(--purple);border-color:var(--purple)}#detail-canvas{border-color:var(--line)}.reveal h3{font-size:26px}.controls select option{color:var(--ink)}
+@media(max-width:760px){.preview-nav{padding:14px 16px}.preview-tag{max-width:110px;text-align:right}.controls{gap:8px}.controls select{max-width:100%;flex:1 1 140px}.qhead h2{font-size:24px}.whole{padding:8px}.answer-box{position:static!important}.detail-grid{padding:10px}.modalbar{padding:12px}.hint{padding:10px 12px}}@media(prefers-reduced-motion:reduce){button{transition:none}}
+
+:root{--ink:#242626;--muted:#626969;--line:#dfe3e2;--paper:#f8f9f8;--card:#fff;--purple:#276b5b;--deep:#f8f9f8;--wash:#e9f1ee;--ok:#276b5b;--bad:#a44238;--hl:#d2ab29}body{display:grid;grid-template-columns:280px minmax(0,1fr);font-family:'Avenir Next','PingFang TC',sans-serif}.preview-nav{grid-column:1/-1}header{display:block;background:var(--paper);color:var(--ink);padding:40px 26px;border-right:1px solid var(--line)}header h1{font-weight:600}.controls{display:grid;gap:12px}.controls select,.controls button{width:100%;text-align:left;border-radius:6px}.stats{padding-top:22px;border-top:1px solid var(--line)}main{width:100%;padding:38px clamp(20px,4vw,64px);max-width:1300px}.qhead{margin:24px 0}.whole{border:0;border-radius:0;padding:0;background:transparent}.whole .map{max-width:800px}.answer-box{border-top:1px solid var(--line);padding-top:24px;margin-top:28px}.answer-box input{border-radius:4px}.whole figcaption{padding:12px 0}#coverage-note{max-width:66ch}.detail-grid{grid-template-columns:.8fr 1.2fr;gap:32px;padding:28px}#detailbox{border-radius:8px}.detail-map{border-radius:4px}.reveal{border-radius:6px}@media(max-width:900px){body{grid-template-columns:220px minmax(0,1fr)}header{padding:28px 18px}}@media(max-width:760px){body{display:block}header{border-right:0;border-bottom:1px solid var(--line);padding:20px 16px}.controls{display:flex}.controls select,.controls button{width:auto}.stats{width:100%;padding-top:12px}.exam-links{margin:12px 0}main{padding:20px 16px}.detail-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
-<nav style="padding:12px 24px;background:#f4f0f8"><a href="./" style="color:#65507f;text-decoration:none">← 病理刷題主頁</a></nav>
+<nav class="preview-nav"><a href="ui-preview/">← 比較三個版本</a><span class="preview-tag">A · Stitch · 留白工作台</span></nav>
 <header>
- <h1>病理刷題</h1>
+ <div class="brand-row"><div><span class="workspace-label">Micro · 115-1</span><h1>病理刷題</h1></div><nav class="exam-links" aria-label="切片考試"><a href="ui-preview/stitch/?exam=1" data-exam="1">1</a><a href="ui-preview/stitch/?exam=2" data-exam="2">2</a><a href="ui-preview/stitch/?exam=3" data-exam="3">3</a></nav></div>
  <div class="controls">
   <select id="scope" aria-label="出題範圍"><option value="">全部講次</option></select>
   <select id="view" aria-label="顯示方式"><option value="full">整片模式</option><option value="three">三格模式</option></select>
@@ -140,25 +145,25 @@ dialog::backdrop{background:#16121bdd}
  <div class="body" id="log-body"></div>
  <div class="acts"><button class="primary" id="log-csv">暫停並下載 CSV</button><button id="log-copy">複製文字</button><button id="log-new">開始新一輪</button><span class="note" id="log-msg"></span></div>
 </dialog>
-<script src="quiz-data.js?v=high-3"></script>
+<script src="quiz-data.js?v=high-1"></script>
 <script src="image-service.js?v=20261006-all35-34"></script>
 <script src="vendor/openseadragon/openseadragon.min.js"></script>
 <script src="selectable-20x.js?v=20261009-ui1"></script>
 <script>
 'use strict';
-const Q=window.QUIZ_DATA.filter(s=>s.exam===2),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const previewExam=[1,2,3].includes(Number(new URLSearchParams(location.search).get('exam')))?Number(new URLSearchParams(location.search).get('exam')):1;document.querySelector('[data-exam="'+previewExam+'"]').setAttribute('aria-current','page');const Q=window.QUIZ_DATA.filter(s=>s.exam===previewExam),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const GUIDE='https://zi-yiii.github.io/pathology-slide-guide/#';
 let requestedSlide=new URLSearchParams(location.search).get('slide');
-const get=(k,d)=>{try{return JSON.parse(localStorage.getItem('quiz:'+k))??d}catch{return d}},put=(k,v)=>{try{localStorage.setItem('quiz:'+k,JSON.stringify(v))}catch{}};
+const get=(k,d)=>{try{return JSON.parse(localStorage.getItem('quiz-preview-stitch:'+previewExam+':'+k))??d}catch{return d}},put=(k,v)=>{try{localStorage.setItem('quiz-preview-stitch:'+previewExam+':'+k,JSON.stringify(v))}catch{}};
 let session=get('session',null);if(!session||!Array.isArray(session.items))session={start:new Date().toISOString(),items:[],exported:true};
 const saveSession=()=>{put('session',session);const b=$('#log-btn'),k=session.items.length;b.textContent=`本輪紀錄 ${k}${k&&!session.exported?' ・未匯出':''}`;b.classList.toggle('unsaved',k>0&&!session.exported)};
 let revealed=false,rec=get('rec',{}),n=0,cur=null,picks=[],modal=null,zoom=1;
 const ZOOMS=[1,1.5,2,3,4],HELP={three:['只看同一張玻片隨機的三格作答；整張全景要按「看答案」後才出現，避免變成認低倍輪廓。點格子放大後，可選位置進入圓形視野；10×／40×使用同一圖片解析度。','有些格子可能只有正常組織，請綜合三格判斷。整張切成 3mm 正方形格，組織太少的格子不出題。'],
  full:['整張模式：把這張玻片所有可出題的格子拼回原位（約 4× 物鏡），可縮放、拖曳。點任一格可看大圖與圓形視野。','組織較少的格子以低倍全景補上，避免把未出題區域誤看成組織缺角。一題需載入二三十張圖，手機網路較慢。']};
 const lessons=[...new Map(Q.map(s=>[s.date,s.lesson])).entries()];
-for(const exam of [2])$('#scope').add(new Option(`第 ${exam} 次切片考試（${Q.filter(s=>s.exam===exam).length} 片）`,'exam'+exam));
+for(const exam of [previewExam])$('#scope').add(new Option(`第 ${exam} 次切片考試（${Q.filter(s=>s.exam===exam).length} 片）`,'exam'+exam));
 lessons.filter(([d])=>!d.startsWith('exam')).forEach(([d,l])=>$('#scope').add(new Option(`${d.slice(0,2)}/${d.slice(2)} · ${l}`,d)));
-$('#scope').value=new URLSearchParams(location.search).get('scope')||'exam2';if($('#scope').selectedIndex<0)$('#scope').value='';$('#scope').onchange=()=>{requestedSlide=null;put('scope',$('#scope').value);next()};$('#mode').onchange=next;if(get('viewVersion','')!=='circle-full-1'){put('view','full');put('viewVersion','circle-full-1')}$('#view').value=get('view','full');$('#view').onchange=()=>{put('view',$('#view').value);render()};
+$('#scope').value=new URLSearchParams(location.search).get('scope')||'exam'+previewExam;if($('#scope').selectedIndex<0)$('#scope').value='';$('#scope').onchange=()=>{requestedSlide=null;put('scope',$('#scope').value);next()};$('#mode').onchange=next;if(get('viewVersion','')!=='circle-full-1'){put('view','full');put('viewVersion','circle-full-1')}$('#view').value=get('view','full');$('#view').onchange=()=>{put('view',$('#view').value);render()};
 function pool(){let p=Q.filter(s=>!$('#scope').value||s.date===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value);if($('#mode').value==='wrong'){const w=p.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0));p=w}return p}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function stats(){let ok=0,bad=0;Object.values(rec).forEach(r=>{ok+=r.ok||0;bad+=r.bad||0});const pending=Q.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0)).length;$('#stats').textContent=`累計 ${ok} 對 / ${bad} 錯 · 待重跑 ${pending} · ${Q.length} 張玻片`;$('#clear-wrong').disabled=!pending}
@@ -230,7 +235,7 @@ $('#log-copy').onclick=async()=>{if(!session.items.length)return;try{await navig
 $('#log-new').onclick=()=>{if(session.items.length&&!session.exported&&!confirm('這一輪還沒匯出，確定要清掉並開始新一輪嗎？'))return;session={start:new Date().toISOString(),items:[],exported:true};put('decks',{});saveSession();next();showLog()};
 // 有未匯出的紀錄時，關閉或重新整理前提醒（瀏覽器只會顯示它自己的提示文字）
 window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exported){e.preventDefault();e.returnValue=''}});
-window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
+window.addEventListener('storage',e=>{if(e.key!=='quiz-preview-stitch:'+previewExam+':rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 saveSession();stats();next();
 </script>
 </body>

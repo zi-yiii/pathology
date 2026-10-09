@@ -3,7 +3,7 @@
 <head><base href="/pathology/">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Micro 第2次 · 病理刷題</title>
+<title>C · Garden · 病理刷題 UI 預覽</title>
 <style>
 :root{--ink:#2c2934;--muted:#6f6a78;--line:#e2dde7;--paper:#f8f6f2;--card:#fff;--purple:#665085;--deep:#30263e;--wash:#efeaf4;--ok:#2f7a5b;--bad:#b0413e;--hl:#ffcc00}
 @media (prefers-color-scheme:dark){:root{--ink:#ece8f2;--muted:#a7a0b2;--line:#3a3442;--paper:#18151c;--card:#221e28;--purple:#b49ad6;--deep:#120f16;--wash:#2b2533;--ok:#6fc29d;--bad:#e07a76}}
@@ -100,12 +100,17 @@ dialog::backdrop{background:#16121bdd}
 
 .detail-nav button[aria-pressed=true]{background:var(--purple);color:#fff;border-color:var(--purple)}
 #detail-marker{border-radius:50%}#detail-canvas{width:min(100%,65vh);margin:auto;cursor:grab}.detail-high .detail-nav{justify-content:center}
-</style>
+
+:root{color-scheme:light}body{font-size:16px}button,select{min-height:44px}button{transition:background .16s,transform .16s}button:active{transform:translateY(1px)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--purple);outline-offset:3px}header h1{letter-spacing:-.04em;font-size:28px}.controls{font-size:14px}.controls select,.controls button{color:var(--ink);background:var(--card);border-color:var(--line);padding:9px 12px}.stats{color:var(--muted)}#log-btn{background:var(--wash)}#log-btn.unsaved{color:var(--ink);border-color:var(--purple)}.qhead h2{font-size:28px;letter-spacing:-.04em}.qhead p{max-width:56ch;font-size:14px}.whole{margin:0;padding:16px}.whole .map{max-width:760px}.answer-box label{font-size:14px;font-weight:600}.answer-box input{min-height:48px}.whole figcaption,.note{font-size:13px}.preview-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 28px;border-bottom:1px solid var(--line);background:var(--paper);font-size:14px}.preview-nav a{color:var(--ink);text-decoration:none}.preview-tag{font-size:12px;letter-spacing:.06em;color:var(--muted)}.exam-links{display:flex;gap:6px;margin:20px 0}.exam-links a{display:grid;place-items:center;min-height:44px;min-width:44px;border:1px solid var(--line);border-radius:8px;text-decoration:none}.exam-links a[aria-current]{background:var(--purple);color:white;border-color:var(--purple)}.workspace-label{font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}.detail-grid{align-items:center}.detail-map{border-radius:12px;overflow:hidden}#detailbox{border:1px solid var(--line)}.modalbar{padding:18px 24px}.hint{padding:12px 24px;line-height:1.65}#detail-status{text-align:center}.detail-nav button[aria-pressed=true]{background:var(--purple);border-color:var(--purple)}#detail-canvas{border-color:var(--line)}.reveal h3{font-size:26px}.controls select option{color:var(--ink)}
+@media(max-width:760px){.preview-nav{padding:14px 16px}.preview-tag{max-width:110px;text-align:right}.controls{gap:8px}.controls select{max-width:100%;flex:1 1 140px}.qhead h2{font-size:24px}.whole{padding:8px}.answer-box{position:static!important}.detail-grid{padding:10px}.modalbar{padding:12px}.hint{padding:10px 12px}}@media(prefers-reduced-motion:reduce){button{transition:none}}
+
+:root{--ink:#3c382e;--muted:#746d60;--line:#e2dbce;--paper:#eeeae0;--card:#fbf9f3;--purple:#795039;--deep:#fbf9f3;--wash:#e9decd;--ok:#35694a;--bad:#a44238;--hl:#d2ab29}body{font-family:'Optima','PingFang TC',sans-serif}.preview-nav{background:var(--paper);border:0}header{max-width:1260px;margin:20px auto 0;background:transparent;color:var(--ink);padding:0 36px;display:block}header h1{font-size:36px;font-weight:500}.brand-row{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:18px}.exam-links{margin:0}.controls{padding:18px 0;border-bottom:1px solid var(--line);gap:10px}.controls select,.controls button{background:transparent;border-radius:24px;padding:8px 16px}.stats{margin-left:auto}main{max-width:1260px;padding:26px 36px 64px}.qhead{margin:26px 0 18px}.qhead h2{font-weight:500;font-size:32px}.whole{border:0;border-radius:24px;background:var(--card);padding:24px;box-shadow:0 12px 32px #65553c09}.whole .map{max-width:740px}.answer-box{margin:24px 0;grid-template-columns:1fr 1.6fr auto;gap:18px}.answer-box input{background:transparent;border:0;border-bottom:1px solid var(--muted);border-radius:0;padding-left:0}.answer-box button{border-radius:30px;padding:12px 28px}#detailbox{background:var(--card);border-radius:28px}.detail-grid{gap:28px;padding:24px}.modalbar{border-color:var(--line)}.detail-nav button{border-radius:24px}.reveal{background:var(--card);border:0;border-radius:24px;padding:28px}.preview-tag{letter-spacing:0}@media(max-width:760px){header{padding:0 16px;margin-top:12px}header h1{font-size:28px}.brand-row{align-items:flex-start}.stats{width:100%;margin-left:0}main{padding:18px 16px}.whole{padding:12px;border-radius:16px}.answer-box{display:grid;grid-template-columns:1fr}.detail-grid{padding:10px}}
+details.tweaks{position:fixed;bottom:16px;right:16px;z-index:10;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 16px;box-shadow:0 6px 24px #3c382e18}details.tweaks summary{cursor:pointer;min-height:32px;display:flex;align-items:center}details.tweaks label{display:block;margin-top:12px;font-size:14px}body[data-density="compact"] main{padding-top:12px}body[data-density="compact"] .qhead{margin:12px 0}body[data-density="compact"] .whole{padding:12px}body[data-density="compact"] header{margin-top:6px}</style>
 </head>
 <body>
-<nav style="padding:12px 24px;background:#f4f0f8"><a href="./" style="color:#65507f;text-decoration:none">← 病理刷題主頁</a></nav>
+<nav class="preview-nav"><a href="ui-preview/">← 比較三個版本</a><span class="preview-tag">C · Garden · 閱讀工作桌</span></nav>
 <header>
- <h1>病理刷題</h1>
+ <div class="brand-row"><div><span class="workspace-label">Micro · 115-1</span><h1>病理刷題</h1></div><nav class="exam-links" aria-label="切片考試"><a href="ui-preview/garden/?exam=1" data-exam="1">1</a><a href="ui-preview/garden/?exam=2" data-exam="2">2</a><a href="ui-preview/garden/?exam=3" data-exam="3">3</a></nav></div>
  <div class="controls">
   <select id="scope" aria-label="出題範圍"><option value="">全部講次</option></select>
   <select id="view" aria-label="顯示方式"><option value="full">整片模式</option><option value="three">三格模式</option></select>
@@ -140,25 +145,25 @@ dialog::backdrop{background:#16121bdd}
  <div class="body" id="log-body"></div>
  <div class="acts"><button class="primary" id="log-csv">暫停並下載 CSV</button><button id="log-copy">複製文字</button><button id="log-new">開始新一輪</button><span class="note" id="log-msg"></span></div>
 </dialog>
-<script src="quiz-data.js?v=high-3"></script>
+<script src="quiz-data.js?v=high-1"></script>
 <script src="image-service.js?v=20261006-all35-34"></script>
 <script src="vendor/openseadragon/openseadragon.min.js"></script>
 <script src="selectable-20x.js?v=20261009-ui1"></script>
 <script>
 'use strict';
-const Q=window.QUIZ_DATA.filter(s=>s.exam===2),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const previewExam=[1,2,3].includes(Number(new URLSearchParams(location.search).get('exam')))?Number(new URLSearchParams(location.search).get('exam')):1;document.querySelector('[data-exam="'+previewExam+'"]').setAttribute('aria-current','page');const Q=window.QUIZ_DATA.filter(s=>s.exam===previewExam),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const GUIDE='https://zi-yiii.github.io/pathology-slide-guide/#';
 let requestedSlide=new URLSearchParams(location.search).get('slide');
-const get=(k,d)=>{try{return JSON.parse(localStorage.getItem('quiz:'+k))??d}catch{return d}},put=(k,v)=>{try{localStorage.setItem('quiz:'+k,JSON.stringify(v))}catch{}};
+const get=(k,d)=>{try{return JSON.parse(localStorage.getItem('quiz-preview-garden:'+previewExam+':'+k))??d}catch{return d}},put=(k,v)=>{try{localStorage.setItem('quiz-preview-garden:'+previewExam+':'+k,JSON.stringify(v))}catch{}};
 let session=get('session',null);if(!session||!Array.isArray(session.items))session={start:new Date().toISOString(),items:[],exported:true};
 const saveSession=()=>{put('session',session);const b=$('#log-btn'),k=session.items.length;b.textContent=`本輪紀錄 ${k}${k&&!session.exported?' ・未匯出':''}`;b.classList.toggle('unsaved',k>0&&!session.exported)};
 let revealed=false,rec=get('rec',{}),n=0,cur=null,picks=[],modal=null,zoom=1;
 const ZOOMS=[1,1.5,2,3,4],HELP={three:['只看同一張玻片隨機的三格作答；整張全景要按「看答案」後才出現，避免變成認低倍輪廓。點格子放大後，可選位置進入圓形視野；10×／40×使用同一圖片解析度。','有些格子可能只有正常組織，請綜合三格判斷。整張切成 3mm 正方形格，組織太少的格子不出題。'],
  full:['整張模式：把這張玻片所有可出題的格子拼回原位（約 4× 物鏡），可縮放、拖曳。點任一格可看大圖與圓形視野。','組織較少的格子以低倍全景補上，避免把未出題區域誤看成組織缺角。一題需載入二三十張圖，手機網路較慢。']};
 const lessons=[...new Map(Q.map(s=>[s.date,s.lesson])).entries()];
-for(const exam of [2])$('#scope').add(new Option(`第 ${exam} 次切片考試（${Q.filter(s=>s.exam===exam).length} 片）`,'exam'+exam));
+for(const exam of [previewExam])$('#scope').add(new Option(`第 ${exam} 次切片考試（${Q.filter(s=>s.exam===exam).length} 片）`,'exam'+exam));
 lessons.filter(([d])=>!d.startsWith('exam')).forEach(([d,l])=>$('#scope').add(new Option(`${d.slice(0,2)}/${d.slice(2)} · ${l}`,d)));
-$('#scope').value=new URLSearchParams(location.search).get('scope')||'exam2';if($('#scope').selectedIndex<0)$('#scope').value='';$('#scope').onchange=()=>{requestedSlide=null;put('scope',$('#scope').value);next()};$('#mode').onchange=next;if(get('viewVersion','')!=='circle-full-1'){put('view','full');put('viewVersion','circle-full-1')}$('#view').value=get('view','full');$('#view').onchange=()=>{put('view',$('#view').value);render()};
+$('#scope').value=new URLSearchParams(location.search).get('scope')||'exam'+previewExam;if($('#scope').selectedIndex<0)$('#scope').value='';$('#scope').onchange=()=>{requestedSlide=null;put('scope',$('#scope').value);next()};$('#mode').onchange=next;if(get('viewVersion','')!=='circle-full-1'){put('view','full');put('viewVersion','circle-full-1')}$('#view').value=get('view','full');$('#view').onchange=()=>{put('view',$('#view').value);render()};
 function pool(){let p=Q.filter(s=>!$('#scope').value||s.date===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value);if($('#mode').value==='wrong'){const w=p.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0));p=w}return p}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 function stats(){let ok=0,bad=0;Object.values(rec).forEach(r=>{ok+=r.ok||0;bad+=r.bad||0});const pending=Q.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0)).length;$('#stats').textContent=`累計 ${ok} 對 / ${bad} 錯 · 待重跑 ${pending} · ${Q.length} 張玻片`;$('#clear-wrong').disabled=!pending}
@@ -230,8 +235,8 @@ $('#log-copy').onclick=async()=>{if(!session.items.length)return;try{await navig
 $('#log-new').onclick=()=>{if(session.items.length&&!session.exported&&!confirm('這一輪還沒匯出，確定要清掉並開始新一輪嗎？'))return;session={start:new Date().toISOString(),items:[],exported:true};put('decks',{});saveSession();next();showLog()};
 // 有未匯出的紀錄時，關閉或重新整理前提醒（瀏覽器只會顯示它自己的提示文字）
 window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exported){e.preventDefault();e.returnValue=''}});
-window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
+window.addEventListener('storage',e=>{if(e.key!=='quiz-preview-garden:'+previewExam+':rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 saveSession();stats();next();
 </script>
-</body>
+<details class="tweaks"><summary>Tweaks</summary><label>版面節奏 <select id="density"><option value="relaxed">舒展</option><option value="compact">緊湊</option></select></label></details><script>document.getElementById('density').addEventListener('change',e=>document.body.dataset.density=e.target.value)</script></body>
 </html>
