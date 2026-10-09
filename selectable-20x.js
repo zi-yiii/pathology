@@ -1,159 +1,29 @@
-/* 自由選點的 20×：只傳相對分塊座標；公開程式沒有學校網址或來源 GUID。 */
-window.Detail20x = (() => {
-  const $ = id => document.getElementById(id);
-  const dialog = document.createElement('dialog');
-  dialog.id = 'detailbox';
-  dialog.setAttribute('aria-label', '圓形視野瀏覽');
-  dialog.innerHTML = `<div class="modalbar"><strong>圓形視野瀏覽</strong><button id="detail-close">關閉 ×</button></div>
-    <p class="hint">點低倍圖選位置；10×／40×依目鏡FN18模擬視野，切換不增加圖片解析度。方向鍵每次移動¼視野，Shift＋方向鍵移動½視野；也可拖曳右圖。</p>
-    <div class="detail-grid"><div class="detail-low"><div class="detail-map"><img id="detail-map" alt="點選低倍圖選擇位置"><div id="detail-marker"></div></div></div>
-    <div class="detail-high"><div class="detail-nav"><button id="field-10" aria-pressed="true">10× 視野</button><button id="field-40" aria-pressed="false">40× 視野</button></div><p id="detail-status" role="status"></p><canvas id="detail-canvas" width="1280" height="960" aria-label="所選位置圓形視野"></canvas>
-    <div class="detail-nav"><button id="detail-left" aria-label="圓形視野往左">←</button><button id="detail-up" aria-label="圓形視野往上">↑</button><button id="detail-down" aria-label="圓形視野往下">↓</button><button id="detail-right" aria-label="圓形視野往右">→</button><button id="detail-retry">重新載入</button></div></div></div>`;
-  document.body.appendChild(dialog);
-  let slide, cell, x, y, generation = 0, abort, tileSet;
-  let W = 1280, H = 1280, fieldMode = 10, paintedView;
-  const retainedFrame=document.createElement('canvas');
-  const images = new Map(), pending = new Map();
-  const cacheLimit = matchMedia("(pointer: coarse)").matches ? 48 : 100;
-  const service = () => String(window.PATHOLOGY_IMAGE_SERVICE || '').replace(/\/$/, '');
-  const available = s => !!(s?.selectable20x || (s?.highResolution && service()));
-  const geometry = () => slide.selectable20x || slide.highResolution;
-
-  function loadImage(url, signal) {
-    if (images.has(url)) { const im=images.get(url); images.delete(url);images.set(url,im);return Promise.resolve(im); }
-    if(pending.has(url))return pending.get(url);
-    const request=fetch(url).then(async r => {
-      if (r.status === 204) return null;
-      if (!r.ok) throw new Error('影像暫時無法載入');
-      const blob = await r.blob();
-      let image;
-      if(typeof createImageBitmap==='function'){
-        try{image=await createImageBitmap(blob)}catch{}
-      }
-      if(!image){image=await new Promise((resolve,reject)=>{const im=new Image(),url=URL.createObjectURL(blob);im.onload=()=>{URL.revokeObjectURL(url);resolve(im)};im.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('影像無法解碼'))};im.src=url;});}
-      images.set(url, image);
-      if (images.size > cacheLimit) {
-        const first = images.keys().next().value;
-        images.get(first).close?.(); images.delete(first);
-      }
-      return image;
-    }).finally(()=>pending.delete(url));
-    pending.set(url,request);return request;
-  }
-
-  function updateMarker() {
-    const g = geometry();
-    const baseX = cell ? (cell.highBounds?.x ?? cell.c * g.width / slide.cols) : 0;
-    const baseY = cell ? (cell.highBounds?.y ?? cell.r * g.height / slide.rows) : 0;
-    const width = cell ? (cell.highBounds?.width ?? g.width / slide.cols) : g.width;
-    const height = cell ? (cell.highBounds?.height ?? g.height / slide.rows) : g.height;
-    const left = Math.max(baseX, x - W / 2), top = Math.max(baseY, y - H / 2);
-    const right = Math.min(baseX + width, x + W / 2), bottom = Math.min(baseY + height, y + H / 2);
-    $('detail-marker').style.cssText = `left:${(left-baseX)/width*100}%;top:${(top-baseY)/height*100}%;width:${Math.max(0,right-left)/width*100}%;height:${Math.max(0,bottom-top)/height*100}%`;
-  }
-
-  async function render() {
-    abort?.abort(); abort = new AbortController();
-    const current = ++generation, g = geometry(), canvas = $('detail-canvas'), ctx = canvas.getContext('2d');
-    const size=Math.round((fieldMode===10?1800:450)/g.mpp);
-    const previous=paintedView;
-    const reuse=previous&&previous.slide===slide&&previous.cell===cell&&previous.size===size;
-    if(reuse){retainedFrame.width=canvas.width;retainedFrame.height=canvas.height;retainedFrame.getContext('2d').drawImage(canvas,0,0);}
-    W=H=size;if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}canvas.style.borderRadius='50%';canvas.style.aspectRatio='1';
-    x = Math.max(0, Math.min(g.width, x)); y = Math.max(0, Math.min(g.height, y));
-    updateMarker();
-    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
-    // 先畫同位置低倍圖，細節圖到達後逐塊替換，避免空白格。
-    const preview=$('detail-map');
-    if(preview.complete&&preview.naturalWidth){
-      const bx=cell?(cell.highBounds?.x??cell.c*g.width/slide.cols):0,by=cell?(cell.highBounds?.y??cell.r*g.height/slide.rows):0;
-      const bw=cell?(cell.highBounds?.width??g.width/slide.cols):g.width,bh=cell?(cell.highBounds?.height??g.height/slide.rows):g.height;
-      ctx.drawImage(preview,bx-x+W/2,by-y+H/2,bw,bh);
-    }
-    if(reuse)ctx.drawImage(retainedFrame,previous.x-x,previous.y-y);
-    paintedView={slide,cell,size:W,x,y};
-    $('detail-status').textContent = '細節載入中…';
-    const left = Math.round(x - W / 2), top = Math.round(y - H / 2);
-    const ox = g.offsetX || 0, oy = g.offsetY || 0, ts = g.tileSize;
-    const tasks = [], visible=[];
-    for (let r = Math.floor((top+oy)/ts); r <= Math.floor((top+H-1+oy)/ts); r++) {
-      for (let c = Math.floor((left+ox)/ts); c <= Math.floor((left+W-1+ox)/ts); c++) {
-        if (r < 0 || c < 0 || r*ts-oy >= g.height || c*ts-ox >= g.width) continue;
-        if (slide.selectable20x && !tileSet.has(`${r},${c}`)) continue;
-        // 圓形外的角落分塊不會顯示，略過這些請求。
-        const nx=Math.max(c*ts-ox,Math.min(x,(c+1)*ts-ox)), ny=Math.max(r*ts-oy,Math.min(y,(r+1)*ts-oy));
-        if((nx-x)**2+(ny-y)**2>(W/2)**2)continue;
-        const url = slide.selectable20x ? `${slide.hiBase || `slides/${slide.id}/hi`}/r${r}c${c}.jpg` : `${service()}/tile/${slide.id}/${r}/${c}`;
-        visible.push({r,c,url});
-        const cached=images.get(url);
-        if(cached){ctx.drawImage(cached,c*ts-ox-left,r*ts-oy-top);continue;}
-        tasks.push(async () => {
-          const image = await loadImage(url, abort.signal);
-          if (current === generation && image) ctx.drawImage(image, c*ts-ox-left, r*ts-oy-top);
-        });
-      }
-    }
-    // 六條請求上限，切換選點時取消舊請求。
-    let next = 0;
-    const worker = async () => { while (next < tasks.length && current === generation) await tasks[next++](); };
-    try {
-      await Promise.all(Array.from({length: Math.min(6, tasks.length)}, worker));
-      if (current !== generation) return;
-      $('detail-status').textContent = `${fieldMode}× 視野 · 圓形直徑 ${(W*g.mpp/1000).toFixed(2)} mm · 同一圖片解析度`;
-      if(slide.selectable20x){
-        const near=new Set();
-        for(const t of visible)for(const [dr,dc] of [[0,1],[1,0],[0,-1],[-1,0]]){const r=t.r+dr,c=t.c+dc,u=`${slide.hiBase||`slides/${slide.id}/hi`}/r${r}c${c}.jpg`;if(tileSet.has(`${r},${c}`)&&!images.has(u)&&!pending.has(u)&&!visible.some(v=>v.url===u))near.add(u);}
-        const urls=[...near].slice(0,4);
-        (async()=>{for(const u of urls){if(current!==generation||!dialog.open)break;try{await loadImage(u)}catch{}}})();
-      }
-      // 白色比例尺底避免遮住切片細節；只依原始掃描的像素尺寸繪製。
-      const length = 100 / g.mpp; const sx=(W-length)/2, sy=H*.84; const font=Math.max(16,Math.round(14*W/Math.max(1,canvas.clientWidth)));
-      ctx.fillStyle = '#ffffffdb'; ctx.fillRect(sx-10, sy-font-10, length+20, font+22);
-      ctx.fillStyle = '#111'; ctx.fillRect(sx, sy, length, Math.max(3,W/300));
-      ctx.font = `${font}px sans-serif`; ctx.fillText('100 µm', sx, sy-6);
-    } catch (error) {
-      if (current !== generation || error.name === 'AbortError') return;
-      ++generation; abort.abort();
-      $('detail-status').textContent = '部分細節載入失敗，請按「重新載入」；低倍預覽不能代表細節已完成。';
-    }
-  }
-
-  $('detail-map').onclick = event => {
-    const rect = event.currentTarget.getBoundingClientRect(), g = geometry();
-    const fx = Math.max(0, Math.min(1, (event.clientX-rect.left)/rect.width));
-    const fy = Math.max(0, Math.min(1, (event.clientY-rect.top)/rect.height));
-    x = cell ? (cell.highBounds?.x ?? cell.c*g.width/slide.cols) + fx*(cell.highBounds?.width ?? g.width/slide.cols) : fx*g.width;
-    y = cell ? (cell.highBounds?.y ?? cell.r*g.height/slide.rows) + fy*(cell.highBounds?.height ?? g.height/slide.rows) : fy*g.height;
-    render();
-  };
-  for (const [id, dx, dy] of [['detail-left',-.25,0],['detail-right',.25,0],['detail-up',0,-.25],['detail-down',0,.25]]) {
-    $(id).onclick = () => { x += dx*W; y += dy*H; render(); };
-  }
-  const keyMoves={ArrowLeft:[-.25,0],ArrowRight:[.25,0],ArrowUp:[0,-.25],ArrowDown:[0,.25]};
-  dialog.addEventListener('keydown',e=>{if(!dialog.open||e.altKey||e.ctrlKey||e.metaKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;const delta=keyMoves[e.key];if(!delta)return;e.preventDefault();const speed=e.shiftKey?2:1;x+=delta[0]*W*speed;y+=delta[1]*H*speed;render()});
-  let swipe=null, dragFrame=0;
-  const dragPreview=document.createElement('canvas');
-  $('detail-canvas').style.touchAction='none';
-  $('detail-canvas').addEventListener('pointerdown',e=>{const canvas=e.currentTarget;dragPreview.width=canvas.width;dragPreview.height=canvas.height;dragPreview.getContext('2d').drawImage(canvas,0,0);++generation;swipe={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0};canvas.setPointerCapture(e.pointerId)});
-  $('detail-canvas').addEventListener('pointermove',e=>{if(!swipe||swipe.id!==e.pointerId)return;const rect=e.currentTarget.getBoundingClientRect();swipe.dx=(e.clientX-swipe.x)*W/rect.width;swipe.dy=(e.clientY-swipe.y)*H/rect.height;if(dragFrame)return;dragFrame=requestAnimationFrame(()=>{dragFrame=0;if(!swipe)return;const ctx=$('detail-canvas').getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.drawImage(dragPreview,swipe.dx,swipe.dy);$('detail-status').textContent='拖曳預覽 · 放開後載入所選位置';});});
-  $('detail-canvas').addEventListener('pointerup',e=>{if(!swipe||swipe.id!==e.pointerId)return;const r=e.currentTarget.getBoundingClientRect();x-=(e.clientX-swipe.x)*W/r.width;y-=(e.clientY-swipe.y)*H/r.height;swipe=null;paintedView=null;render()});
-  $('detail-canvas').addEventListener('pointercancel',()=>{swipe=null;paintedView=null;render()});
-  for(const mode of [10,40])$('field-'+mode).onclick=()=>{fieldMode=mode;for(const n of [10,40])$('field-'+n).setAttribute('aria-pressed',n===mode);render()};
-  $('detail-retry').onclick = render;
-  $('detail-close').onclick = () => dialog.close();
-  dialog.addEventListener('close', () => { ++generation; abort?.abort(); });
-  return {
-    available,
-    open(s, c=null, fx=.5, fy=.5) {
-      if (!available(s)) return;
-      paintedView=null;slide=s; cell=c; tileSet=new Set(s.selectable20x?.tiles || []);
-      const g=geometry();
-      x=c ? (c.highBounds?.x ?? c.c*g.width/s.cols) + fx*(c.highBounds?.width ?? g.width/s.cols) : fx*g.width;
-      y=c ? (c.highBounds?.y ?? c.r*g.height/s.rows) + fy*(c.highBounds?.height ?? g.height/s.rows) : fy*g.height;
-      const base=s.assetBase||`slides/${s.id}`;
-      $('detail-map').src=c ? `${base}/r${c.r}c${c.c}.jpg` : `${base}/overview.jpg`;
-      $('detail-map').alt=c ? '點選此 3mm 格子的任意位置' : '點選整張玻片的任意位置';
-      dialog.showModal(); render();
-    }
-  };
+/* 圓形FN18視野：連續平移，背景載圖。來源地址與GUID不在公開程式。 */
+window.Detail20x=(()=>{
+ const $=id=>document.getElementById(id),dialog=document.createElement('dialog');
+ dialog.id='detailbox';dialog.setAttribute('aria-label','圓形視野瀏覽');
+ dialog.innerHTML=`<div class="modalbar"><strong>圓形視野瀏覽</strong><button id="detail-close">關閉 ×</button></div><p class="hint">點低倍圖選位置；直接拖曳圓形內圖片。方向鍵¼視野，Shift＋方向鍵½視野。10×／40×依FN18模擬。</p><div class="detail-grid"><div class="detail-low"><div class="detail-map"><img id="detail-map" alt="點選整張玻片的任意位置"><div id="detail-marker"></div></div></div><div class="detail-high"><div class="detail-nav"><button id="field-10" aria-pressed="true">10× 視野</button><button id="field-40" aria-pressed="false">40× 視野</button></div><p id="detail-status" role="status"></p><div id="detail-field" style="position:relative;width:min(100%,65vh);aspect-ratio:1;margin:auto"><div id="detail-canvas" tabindex="0" aria-label="可拖曳的圓形視野" style="width:100%;height:100%;border-radius:50%;overflow:hidden;touch-action:none;contain:paint"></div><div id="detail-scale" style="position:absolute;bottom:12%;left:50%;transform:translateX(-50%);background:#ffffffd9;text-align:center;font-size:12px;pointer-events:none"><span>100 µm</span><div style="border-bottom:3px solid #222"></div></div></div><div class="detail-nav"><button id="detail-left" aria-label="圓形視野往左">←</button><button id="detail-up" aria-label="圓形視野往上">↑</button><button id="detail-down" aria-label="圓形視野往下">↓</button><button id="detail-right" aria-label="圓形視野往右">→</button><button id="detail-retry">重新載入</button></div></div></div>`;
+ document.body.appendChild(dialog);
+ let viewer,slide,cell,mode=10,highItem,ready=false,serial=0,failed=false;
+ const available=s=>!!s?.selectable20x;
+ const geometry=()=>slide.selectable20x,diameter=()=>mode===10?1800:450;
+ function bounds(){const g=geometry();return cell?{x:cell.highBounds?.x??cell.c*g.width/slide.cols,y:cell.highBounds?.y??cell.r*g.height/slide.rows,width:cell.highBounds?.width??g.width/slide.cols,height:cell.highBounds?.height??g.height/slide.rows}:{x:0,y:0,width:g.width,height:g.height};}
+ function source(g,base){const tiles=new Set(g.tiles),bases=new Map();for(const part of g.parts||[])for(const key of part.tiles)bases.set(key,part.base);return {width:g.width,height:g.height,tileSize:g.tileSize,minLevel:0,maxLevel:0,getLevelScale:()=>1,getTileUrl:(level,x,y)=>`${bases.get(`${y},${x}`)||base}/r${y}c${x}.jpg`,tileExists:(level,x,y)=>tiles.has(`${y},${x}`)};}
+ function update(){if(!ready||!dialog.open)return;const g=geometry(),b=bounds(),c=viewer.viewport.getCenter(true),d=diameter()/g.mpp,left=Math.max(b.x,c.x*g.width-d/2),top=Math.max(b.y,c.y*g.width-d/2),right=Math.min(b.x+b.width,c.x*g.width+d/2),bottom=Math.min(b.y+b.height,c.y*g.width+d/2);$('detail-marker').style.cssText=`left:${(left-b.x)/b.width*100}%;top:${(top-b.y)/b.height*100}%;width:${Math.max(0,right-left)/b.width*100}%;height:${Math.max(0,bottom-top)/b.height*100}%`;
+ const loading=viewer.imageLoader.jobsInProgress>0;$('detail-status').textContent=failed?'部分細節未載入，請按重新載入':`${mode}× 視野 · 圓形直徑 ${(diameter()/1000).toFixed(2)} mm · ${mode===40&&slide.ultra?'高一層畫質':'目前畫質'}${loading?' · 細節載入中…':''}`;}
+ function field(n,center){mode=n;highItem?.setOpacity(n===40?1:0);for(const m of [10,40])$('field-'+m).setAttribute('aria-pressed',m===n);const g=geometry(),c=center||viewer.viewport.getCenter(),w=diameter()/(g.width*g.mpp);viewer.viewport.fitBounds(new OpenSeadragon.Rect(c.x-w/2,c.y-w/2,w,w),true);$('detail-scale').style.width=`${100/diameter()*100}%`;update();}
+ function open(s,c=null,fx=.5,fy=.5){if(!available(s))return;const current=++serial;viewer?.destroy();slide=s;cell=c;ready=false;failed=false;highItem=null;mode=10;const g=geometry(),b=bounds(),base=s.assetBase||`slides/${s.id}`;$('detail-map').src=c?`${base}/r${c.r}c${c.c}.jpg`:`${base}/overview.jpg`;$('detail-map').alt=c?'點選此格子的任意位置':'點選整張玻片的任意位置';$('detail-status').textContent='載入中…';if(!dialog.open)dialog.showModal();
+ viewer=OpenSeadragon({id:'detail-canvas',showNavigationControl:false,animationTime:.18,blendTime:.12,imageLoaderLimit:6,maxImageCacheCount:matchMedia('(pointer:coarse)').matches?64:120,minPixelRatio:.5,visibilityRatio:.1,constrainDuringPan:true,gestureSettingsMouse:{scrollToZoom:false,clickToZoom:false,dblClickToZoom:false},gestureSettingsTouch:{pinchToZoom:false,clickToZoom:false,dblClickToZoom:false},maxZoomPixelRatio:8});
+ const start=()=>{if(current!==serial)return;ready=true;field(10,new OpenSeadragon.Point((b.x+fx*b.width)/g.width,(b.y+fy*b.height)/g.width));};
+ // 概覽先鋪底：新分塊未到時仍有同位置影像。
+ viewer.addSimpleImage({url:`${base}/overview.jpg`,width:1,success:()=>{if(current!==serial)return;viewer.addTiledImage({tileSource:source(g,s.hiBase||`slides/${s.id}/hi`),width:1,success:()=>{if(current!==serial)return;if(s.ultra&&s.ultraBase)viewer.addTiledImage({tileSource:source(s.ultra,s.ultraBase),width:1,opacity:0,success:e=>{highItem=e.item;start();}});else start();}});},error:()=>{$('detail-status').textContent='概覽載入失敗，請按重新載入';}});
+ viewer.addHandler('animation',update);viewer.addHandler('tile-loaded',update);viewer.addHandler('tile-drawn',update);viewer.addHandler('tile-load-failed',()=>{failed=true;update();});}
+ $('detail-map').onclick=e=>{if(!ready)return;const g=geometry(),b=bounds(),r=e.currentTarget.getBoundingClientRect();field(mode,new OpenSeadragon.Point((b.x+(e.clientX-r.left)/r.width*b.width)/g.width,(b.y+(e.clientY-r.top)/r.height*b.height)/g.width));};
+ for(const n of [10,40])$('field-'+n).onclick=()=>ready&&field(n);
+ function move(dx,dy,speed=1){if(!ready)return;const g=geometry(),step=diameter()/(g.width*g.mpp)*.25*speed;viewer.viewport.panBy(new OpenSeadragon.Point(dx*step,dy*step));viewer.viewport.applyConstraints();}
+ for(const [id,dx,dy] of [['detail-left',-1,0],['detail-right',1,0],['detail-up',0,-1],['detail-down',0,1]])$(id).onclick=()=>move(dx,dy);
+ const keys={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};dialog.addEventListener('keydown',e=>{if(!dialog.open||e.altKey||e.ctrlKey||e.metaKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||!keys[e.key])return;e.preventDefault();move(...keys[e.key],e.shiftKey?2:1);});
+ $('detail-retry').onclick=()=>{const g=geometry(),b=bounds(),c=ready?viewer.viewport.getCenter():new OpenSeadragon.Point((b.x+b.width/2)/g.width,(b.y+b.height/2)/g.width);open(slide,cell,(c.x*g.width-b.x)/b.width,(c.y*g.width-b.y)/b.height);};
+ $('detail-close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{++serial;viewer?.destroy();viewer=null;ready=false;});
+ return {available,open};
 })();
