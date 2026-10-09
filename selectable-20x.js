@@ -5,13 +5,14 @@ window.Detail20x = (() => {
   dialog.id = 'detailbox';
   dialog.setAttribute('aria-label', '圓形視野瀏覽');
   dialog.innerHTML = `<div class="modalbar"><strong>圓形視野瀏覽</strong><button id="detail-close">關閉 ×</button></div>
-    <p class="hint">點低倍圖選位置；10×／40×依目鏡FN18模擬視野，切換不增加圖片解析度。方向鍵或拖曳右圖移動。</p>
+    <p class="hint">點低倍圖選位置；10×／40×依目鏡FN18模擬視野，切換不增加圖片解析度。方向鍵每次移動¼視野，Shift＋方向鍵移動½視野；也可拖曳右圖。</p>
     <div class="detail-grid"><div class="detail-low"><div class="detail-map"><img id="detail-map" alt="點選低倍圖選擇位置"><div id="detail-marker"></div></div></div>
     <div class="detail-high"><div class="detail-nav"><button id="field-10" aria-pressed="true">10× 視野</button><button id="field-40" aria-pressed="false">40× 視野</button></div><p id="detail-status" role="status"></p><canvas id="detail-canvas" width="1280" height="960" aria-label="所選位置圓形視野"></canvas>
     <div class="detail-nav"><button id="detail-left" aria-label="圓形視野往左">←</button><button id="detail-up" aria-label="圓形視野往上">↑</button><button id="detail-down" aria-label="圓形視野往下">↓</button><button id="detail-right" aria-label="圓形視野往右">→</button><button id="detail-retry">重新載入</button></div></div></div>`;
   document.body.appendChild(dialog);
   let slide, cell, x, y, generation = 0, abort, tileSet;
-  let W = 1280, H = 1280, fieldMode = 10;
+  let W = 1280, H = 1280, fieldMode = 10, paintedView;
+  const retainedFrame=document.createElement('canvas');
   const images = new Map(), pending = new Map();
   const cacheLimit = matchMedia("(pointer: coarse)").matches ? 48 : 100;
   const service = () => String(window.PATHOLOGY_IMAGE_SERVICE || '').replace(/\/$/, '');
@@ -54,7 +55,11 @@ window.Detail20x = (() => {
   async function render() {
     abort?.abort(); abort = new AbortController();
     const current = ++generation, g = geometry(), canvas = $('detail-canvas'), ctx = canvas.getContext('2d');
-    W=H=Math.round((fieldMode===10?1800:450)/g.mpp);canvas.width=W;canvas.height=H;canvas.style.borderRadius='50%';canvas.style.aspectRatio='1';
+    const size=Math.round((fieldMode===10?1800:450)/g.mpp);
+    const previous=paintedView;
+    const reuse=previous&&previous.slide===slide&&previous.cell===cell&&previous.size===size;
+    if(reuse){retainedFrame.width=canvas.width;retainedFrame.height=canvas.height;retainedFrame.getContext('2d').drawImage(canvas,0,0);}
+    W=H=size;if(canvas.width!==W||canvas.height!==H){canvas.width=W;canvas.height=H;}canvas.style.borderRadius='50%';canvas.style.aspectRatio='1';
     x = Math.max(0, Math.min(g.width, x)); y = Math.max(0, Math.min(g.height, y));
     updateMarker();
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, W, H);
@@ -65,7 +70,9 @@ window.Detail20x = (() => {
       const bw=cell?(cell.highBounds?.width??g.width/slide.cols):g.width,bh=cell?(cell.highBounds?.height??g.height/slide.rows):g.height;
       ctx.drawImage(preview,bx-x+W/2,by-y+H/2,bw,bh);
     }
-    $('detail-status').textContent = '低倍預覽 · 細節載入中…';
+    if(reuse)ctx.drawImage(retainedFrame,previous.x-x,previous.y-y);
+    paintedView={slide,cell,size:W,x,y};
+    $('detail-status').textContent = '細節載入中…';
     const left = Math.round(x - W / 2), top = Math.round(y - H / 2);
     const ox = g.offsetX || 0, oy = g.offsetY || 0, ts = g.tileSize;
     const tasks = [], visible=[];
@@ -78,6 +85,8 @@ window.Detail20x = (() => {
         if((nx-x)**2+(ny-y)**2>(W/2)**2)continue;
         const url = slide.selectable20x ? `${slide.hiBase || `slides/${slide.id}/hi`}/r${r}c${c}.jpg` : `${service()}/tile/${slide.id}/${r}/${c}`;
         visible.push({r,c,url});
+        const cached=images.get(url);
+        if(cached){ctx.drawImage(cached,c*ts-ox-left,r*ts-oy-top);continue;}
         tasks.push(async () => {
           const image = await loadImage(url, abort.signal);
           if (current === generation && image) ctx.drawImage(image, c*ts-ox-left, r*ts-oy-top);
@@ -117,18 +126,18 @@ window.Detail20x = (() => {
     y = cell ? (cell.highBounds?.y ?? cell.r*g.height/slide.rows) + fy*(cell.highBounds?.height ?? g.height/slide.rows) : fy*g.height;
     render();
   };
-  for (const [id, dx, dy] of [['detail-left',-.5,0],['detail-right',.5,0],['detail-up',0,-.5],['detail-down',0,.5]]) {
+  for (const [id, dx, dy] of [['detail-left',-.25,0],['detail-right',.25,0],['detail-up',0,-.25],['detail-down',0,.25]]) {
     $(id).onclick = () => { x += dx*W; y += dy*H; render(); };
   }
-  const keyMoves={ArrowLeft:[-.5,0],ArrowRight:[.5,0],ArrowUp:[0,-.5],ArrowDown:[0,.5]};
-  dialog.addEventListener('keydown',e=>{if(!dialog.open||e.altKey||e.ctrlKey||e.metaKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;const delta=keyMoves[e.key];if(!delta)return;e.preventDefault();x+=delta[0]*W;y+=delta[1]*H;render()});
+  const keyMoves={ArrowLeft:[-.25,0],ArrowRight:[.25,0],ArrowUp:[0,-.25],ArrowDown:[0,.25]};
+  dialog.addEventListener('keydown',e=>{if(!dialog.open||e.altKey||e.ctrlKey||e.metaKey||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;const delta=keyMoves[e.key];if(!delta)return;e.preventDefault();const speed=e.shiftKey?2:1;x+=delta[0]*W*speed;y+=delta[1]*H*speed;render()});
   let swipe=null, dragFrame=0;
   const dragPreview=document.createElement('canvas');
   $('detail-canvas').style.touchAction='none';
-  $('detail-canvas').addEventListener('pointerdown',e=>{const canvas=e.currentTarget;dragPreview.width=canvas.width;dragPreview.height=canvas.height;dragPreview.getContext('2d').drawImage(canvas,0,0);swipe={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0};canvas.setPointerCapture(e.pointerId)});
+  $('detail-canvas').addEventListener('pointerdown',e=>{const canvas=e.currentTarget;dragPreview.width=canvas.width;dragPreview.height=canvas.height;dragPreview.getContext('2d').drawImage(canvas,0,0);++generation;swipe={id:e.pointerId,x:e.clientX,y:e.clientY,dx:0,dy:0};canvas.setPointerCapture(e.pointerId)});
   $('detail-canvas').addEventListener('pointermove',e=>{if(!swipe||swipe.id!==e.pointerId)return;const rect=e.currentTarget.getBoundingClientRect();swipe.dx=(e.clientX-swipe.x)*W/rect.width;swipe.dy=(e.clientY-swipe.y)*H/rect.height;if(dragFrame)return;dragFrame=requestAnimationFrame(()=>{dragFrame=0;if(!swipe)return;const ctx=$('detail-canvas').getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,W,H);ctx.drawImage(dragPreview,swipe.dx,swipe.dy);$('detail-status').textContent='拖曳預覽 · 放開後載入所選位置';});});
-  $('detail-canvas').addEventListener('pointerup',e=>{if(!swipe||swipe.id!==e.pointerId)return;const r=e.currentTarget.getBoundingClientRect();x-=(e.clientX-swipe.x)*W/r.width;y-=(e.clientY-swipe.y)*H/r.height;swipe=null;render()});
-  $('detail-canvas').addEventListener('pointercancel',()=>{swipe=null;render()});
+  $('detail-canvas').addEventListener('pointerup',e=>{if(!swipe||swipe.id!==e.pointerId)return;const r=e.currentTarget.getBoundingClientRect();x-=(e.clientX-swipe.x)*W/r.width;y-=(e.clientY-swipe.y)*H/r.height;swipe=null;paintedView=null;render()});
+  $('detail-canvas').addEventListener('pointercancel',()=>{swipe=null;paintedView=null;render()});
   for(const mode of [10,40])$('field-'+mode).onclick=()=>{fieldMode=mode;for(const n of [10,40])$('field-'+n).setAttribute('aria-pressed',n===mode);render()};
   $('detail-retry').onclick = render;
   $('detail-close').onclick = () => dialog.close();
@@ -137,7 +146,7 @@ window.Detail20x = (() => {
     available,
     open(s, c=null, fx=.5, fy=.5) {
       if (!available(s)) return;
-      slide=s; cell=c; tileSet=new Set(s.selectable20x?.tiles || []);
+      paintedView=null;slide=s; cell=c; tileSet=new Set(s.selectable20x?.tiles || []);
       const g=geometry();
       x=c ? (c.highBounds?.x ?? c.c*g.width/s.cols) + fx*(c.highBounds?.width ?? g.width/s.cols) : fx*g.width;
       y=c ? (c.highBounds?.y ?? c.r*g.height/s.rows) + fy*(c.highBounds?.height ?? g.height/s.rows) : fy*g.height;
