@@ -1,0 +1,10 @@
+(()=>{
+ const controls=document.querySelector('.controls');
+ function segmented(select,labels,aria){const wrap=document.createElement('div');wrap.className='mode-switch';wrap.setAttribute('role','group');wrap.setAttribute('aria-label',aria);const track=document.createElement('span');track.className='switch-track';track.setAttribute('aria-hidden','true');wrap.append(track);const buttons=labels.map(([value,label])=>{const button=document.createElement('button');button.type='button';button.textContent=label;button.onclick=()=>{select.value=value;select.dispatchEvent(new Event('change',{bubbles:true}));sync()};wrap.append(button);return {button,value}});function sync(){const index=buttons.findIndex(x=>x.value===select.value);wrap.dataset.side=String(Math.max(0,index));buttons.forEach(({button,value})=>button.setAttribute('aria-pressed',String(value===select.value)))}select.before(wrap);select.classList.add('switch-source');select.addEventListener('change',sync);sync();return wrap}
+ segmented(document.querySelector('#practice-kind'),[['quiz','刷題'],['learn','學習']],'練習模式');
+ const viewSwitch=segmented(document.querySelector('#view'),[['full','整片'],['three','三格']],'看片方式');viewSwitch.classList.add('view-switch');controls.insertBefore(viewSwitch,document.querySelector('#practice-kind').nextSibling);
+ const scope=document.querySelector('#scope');scope.setAttribute('aria-label','講次範圍');Array.from(scope.options).forEach(o=>{if(o.value.startsWith('exam'))o.textContent='全部講次'});if(scope.options.length<=2)scope.hidden=true;
+ const mode=document.querySelector('#mode');mode.options[0].textContent='全部切片';mode.options[1].textContent='只練錯題';mode.setAttribute('aria-label','練習題目');
+ const help=document.createElement('p');help.className='mode-note';help.textContent='全部切片：隨機出題，每片看過一次後再開始下一輪。';mode.after(help);
+ const practice=document.querySelector('#practice-kind');function update(){const learning=practice.value==='learn';viewSwitch.hidden=learning;help.hidden=learning||mode.value==='wrong'}practice.addEventListener('change',update);mode.addEventListener('change',update);update();
+})();
