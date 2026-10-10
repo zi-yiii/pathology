@@ -164,14 +164,15 @@ const lessons=[...new Map(Q.map(s=>[s.date,s.lesson])).entries()];
 for(const exam of [3])$('#scope').add(new Option(`第 ${exam} 次切片考試（${Q.filter(s=>s.exam===exam).length} 片）`,'exam'+exam));
 lessons.filter(([d])=>!d.startsWith('exam')).forEach(([d,l])=>$('#scope').add(new Option(`${d.slice(0,2)}/${d.slice(2)} · ${l}`,d)));
 $('#scope').value=new URLSearchParams(location.search).get('scope')||'exam3';if($('#scope').selectedIndex<0)$('#scope').value='';$('#scope').onchange=()=>{requestedSlide=null;put('scope',$('#scope').value);next()};$('#mode').onchange=next;if(get('viewVersion','')!=='circle-full-1'){put('view','full');put('viewVersion','circle-full-1')}$('#view').value=get('view','full');$('#view').onchange=()=>{put('view',$('#view').value);render()};
-function pool(){let p=Q.filter(s=>!$('#scope').value||s.date===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value);if($('#mode').value==='wrong'){const w=p.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0));p=w}return p}
+function isLearning(){return document.querySelector('#practice-kind')?.value==='learn'||(!document.querySelector('#practice-kind')&&new URLSearchParams(location.search).get('practice')==='learn')}
+function pool(){let p=Q.filter(s=>!$('#scope').value||s.date===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value);if(!isLearning()&&$('#mode').value==='wrong'){const w=p.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0));p=w}return p}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 let activeRoundKey="";function stats(){const items=session.items.filter(x=>x.roundKey===activeRoundKey),ok=items.filter(x=>x.grade==='對').length,bad=items.filter(x=>x.grade==='錯').length;const pending=Q.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0)).length;$('#stats').textContent=`本輪 ${ok} 對 / ${bad} 錯
 待重跑 ${pending} · 本次考試 ${Q.length} 張`;$('#clear-wrong').disabled=!pending}
 function base(s){return s.assetBase||`slides/${s.id}`}
 function src(s,c,hi){return `${base(s)}/r${c.r}c${c.c}.jpg`}
 function drawSlide(p){
- const learningDraw=document.querySelector('#practice-kind')?.value==='learn'||(!document.querySelector('#practice-kind')&&new URLSearchParams(location.search).get('practice')==='learn');const key=[learningDraw?'learning':'quiz',$('#scope').value||'all',$('#mode').value,''].join('|'), allowed=new Set(p.map(s=>s.id));
+ const learningDraw=document.querySelector('#practice-kind')?.value==='learn'||(!document.querySelector('#practice-kind')&&new URLSearchParams(location.search).get('practice')==='learn');const key=[learningDraw?'learning':'quiz',$('#scope').value||'all',learningDraw?'all':$('#mode').value,''].join('|'), allowed=new Set(p.map(s=>s.id));
  let decks=get('decks',{});if(!decks||typeof decks!=='object'||Array.isArray(decks))decks={};
  let d=decks[key];if(!d||!Array.isArray(d.seen)||!Array.isArray(d.left))d={seen:[],left:[],round:1};
  d.seen=[...new Set(d.seen.filter(id=>typeof id==='string'))];d.left=[...new Set(d.left.filter(id=>allowed.has(id)&&!d.seen.includes(id)))];
@@ -216,7 +217,7 @@ $('#form').onsubmit=e=>{e.preventDefault();const s=cur;$('#show').disabled=true;
  const item=session.items[session.items.length-1];
  revealed=true;if(!full)$('#whole').hidden=false;
  const mine=($('#organ').value||$('#dx').value)?`<div class="mine">你的答案：${esc($('#organ').value)||'—'} ／ ${esc($('#dx').value)||'—'}</div>`:'';
- $('#reveal').innerHTML=`<div><p class="note">${esc(s.id)} · ${s.date.startsWith('exam') ? '第 '+s.exam+' 次考試' : s.date.slice(0,2)+'/'+s.date.slice(2)} ${esc(s.lesson)}</p><h3>${esc(s.organ)} · ${esc(s.diagnosis)}</h3><p class="zh">${esc(s.zh)}</p>${mine}<strong>Description（講義答案頁）</strong><ol>${s.pairs.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>${s.extra.length?`<p class="extra">補充：${s.extra.map(esc).join('；')}</p>`:''}<p><a href="${GUIDE+s.id}" target="_blank" rel="noopener">到切片導讀看這一片 →</a></p>
+ $('#reveal').innerHTML=`<div><p class="note">${esc(s.id)} · ${s.date.startsWith('exam') ? '第 '+s.exam+' 次考試' : s.date.slice(0,2)+'/'+s.date.slice(2)} ${esc(s.lesson)}</p><h3>${esc(s.organ)} · ${esc(s.diagnosis)}</h3><p class="zh">${esc(s.zh)}</p>${mine}<strong>Description（講義答案頁）</strong><ol>${s.pairs.map(p=>`<li>${esc(p)}</li>`).join('')}</ol>${s.extra.length?`<p class="extra">補充：${s.extra.map(esc).join('；')}</p>`:''}<p>${s.exam===1?`<a href="${GUIDE+s.id}" target="_blank" rel="noopener">到切片導讀看這一片 →</a>`:"本片導讀待補"}</p>
  <div class="grade"><button class="ok" id="g-ok">我答對了</button><button class="bad" id="g-bad">答錯／不確定</button><button class="primary" id="g-next">下一題 →</button></div></div>
 `;
  $('#reveal').className='reveal show';
@@ -239,5 +240,5 @@ window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exp
 window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 saveSession();stats();next();
 </script>
-<script src="learning-mode.js?v=4"></script><script src="mode-switches.js?v=1"></script></body>
+<script src="learning-mode.js?v=5"></script><script src="mode-switches.js?v=1"></script></body>
 </html>
