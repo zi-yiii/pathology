@@ -106,7 +106,7 @@ dialog::backdrop{background:#16121bdd}
 
 :root{--ink:#242626;--muted:#626969;--line:#dfe3e2;--paper:#f8f9f8;--card:#fff;--purple:#276b5b;--deep:#f8f9f8;--wash:#e9f1ee;--ok:#276b5b;--bad:#a44238;--hl:#d2ab29}body{display:grid;grid-template-columns:280px minmax(0,1fr);font-family:'Avenir Next','PingFang TC',sans-serif}.preview-nav{grid-column:1/-1}header{display:block;background:var(--paper);color:var(--ink);padding:40px 26px;border-right:1px solid var(--line)}header h1{font-weight:600}.controls{display:grid;gap:12px}.controls select,.controls button{width:100%;text-align:left;border-radius:6px}.stats{padding-top:22px;border-top:1px solid var(--line)}main{width:100%;padding:38px clamp(20px,4vw,64px);max-width:1300px}.qhead{margin:24px 0}.whole{border:0;border-radius:0;padding:0;background:transparent}.whole .map{max-width:800px}.answer-box{border-top:1px solid var(--line);padding-top:24px;margin-top:28px}.answer-box input{border-radius:4px}.whole figcaption{padding:12px 0}#coverage-note{max-width:66ch}.detail-grid{grid-template-columns:.8fr 1.2fr;gap:32px;padding:28px}#detailbox{border-radius:8px}.detail-map{border-radius:4px}.reveal{border-radius:6px}@media(max-width:900px){body{grid-template-columns:220px minmax(0,1fr)}header{padding:28px 18px}}@media(max-width:760px){body{display:block}header{border-right:0;border-bottom:1px solid var(--line);padding:20px 16px}.controls{display:flex}.controls select,.controls button{width:auto}.stats{width:100%;padding-top:12px}.exam-links{margin:12px 0}main{padding:20px 16px}.detail-grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="learning-mode.css?v=3"><link rel="stylesheet" href="workspace-ui.css?v=2"></head>
+<link rel="stylesheet" href="learning-mode.css?v=4"><link rel="stylesheet" href="workspace-ui.css?v=2"></head>
 <body>
 <nav class="preview-nav"><a href="./" class="home-icon" aria-label="回主頁" title="回主頁"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m3 10 9-7 9 7v10H7V10m10 10v-7h-5v7"/></svg></a><span class="preview-tag">Micro · 115-1 · 第 2 次</span></nav>
 <header>
@@ -148,7 +148,7 @@ dialog::backdrop{background:#16121bdd}
 <script src="quiz-data.js?v=high-92"></script>
 <script src="image-service.js?v=20261006-all35-34"></script>
 <script src="vendor/openseadragon/openseadragon.min.js"></script>
-<script src="selectable-20x.js?v=20261010-clean"></script>
+<script src="selectable-20x.js?v=20261011-fold"></script>
 <script>
 'use strict';
 const Q=window.QUIZ_DATA.filter(s=>s.exam===2),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -191,7 +191,7 @@ $('#free-whole').onclick=()=>Detail20x.open(cur);
 $('#clear-wrong').onclick=()=>{if(!confirm('清空全部待重跑錯題？歷史作答紀錄與對錯統計會保留。'))return;rec=get('rec',{});for(const r of Object.values(rec))r.pending=false;put('rec',rec);const decks=get('decks',{});for(const key of Object.keys(decks))if(key.split('|')[1]==='wrong')delete decks[key];put('decks',decks);stats();if($('#mode').value==='wrong')next();};
 
 function render(){if(!cur)return;$('#free-whole').hidden=!Detail20x.available(cur);const s=cur,G=s.cols,H=s.rows,full=$('#view').value==='full';
- if(full||s.lectureOnly){$('#whole').hidden=false;$('#tiles').hidden=$('#full').hidden=true;$('#qhelp').textContent=s.lectureOnly?'此案例提供講義視野；沒有校準倍率或可確認的線上原片。':Detail20x.available(s)?'圓形視野已開放：點低倍圖選位置，切換 10×／40× 查看細節。':'本片完整細節圖尚在上架，目前提供低倍全景與格子預覽。';$('#qnote').textContent='';$('#whole').innerHTML=s.lectureOnly?`<div class="tiles">${s.cells.map((c,i)=>`<button class="tile" data-i="${i}"><img src="${src(s,c)}" alt="講義視野 ${i+1}"><span>講義視野 ${i+1}</span></button>`).join('')}</div>`:`<div class="map" id="browse-map"><img src="${base(s)}/overview.jpg" alt="整張玻片低倍全景"></div><figcaption>${Detail20x.available(s)?'點選位置看圓形視野；方向鍵或拖曳右圖移動。':'圓形視野尚未開放；點圖可先看格子預覽。'}</figcaption>`;if(s.lectureOnly){document.querySelectorAll('#whole .tile').forEach(b=>b.onclick=()=>open(s.cells[Number(b.dataset.i)],'講義視野'));}else{$('#browse-map').onclick=e=>{if(Detail20x.available(s)){const r=$('#browse-map img').getBoundingClientRect();Detail20x.open(s,null,(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height)}else{open(s.cells[0],'格子預覽')}}}return;}
+ if(full||s.lectureOnly){$('#whole').hidden=false;$('#tiles').hidden=$('#full').hidden=true;$('#qhelp').textContent=s.lectureOnly?'此案例提供講義視野；沒有校準倍率或可確認的線上原片。':Detail20x.available(s)?'圓形視野已開放：點低倍圖選位置，切換 10×／40× 查看細節。':'本片完整細節圖尚在上架，目前提供低倍全景與格子預覽。';$('#qnote').textContent='';$('#whole').innerHTML=s.lectureOnly?`<div class="tiles">${s.cells.map((c,i)=>`<button class="tile" data-i="${i}"><img src="${src(s,c)}" alt="講義視野 ${i+1}"><span>講義視野 ${i+1}</span></button>`).join('')}</div>`:`<div class="map" id="browse-map" role="button" tabindex="0" aria-label="開啟圓形視野"><img src="${base(s)}/overview.jpg" alt="整張玻片低倍全景"></div><figcaption>${Detail20x.available(s)?'點選位置看圓形視野；方向鍵或拖曳右圖移動。':'圓形視野尚未開放；點圖可先看格子預覽。'}</figcaption>`;if(s.lectureOnly){document.querySelectorAll('#whole .tile').forEach(b=>b.onclick=()=>open(s.cells[Number(b.dataset.i)],'講義視野'));}else{$('#browse-map').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();if(Detail20x.available(s))Detail20x.open(s);else open(s.cells[0],'格子預覽')}};$('#browse-map').onclick=e=>{if(Detail20x.available(s)){const r=$('#browse-map img').getBoundingClientRect();Detail20x.open(s,null,(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height)}else{open(s.cells[0],'格子預覽')}}}return;}
  [$('#qhelp').textContent,$('#qnote').textContent]=HELP[full?'full':'three'];
  $('#whole').hidden=full||!revealed;$('#tiles').hidden=full;$('#full').hidden=!full;
  $('#whole').innerHTML=`<div class="map" id="wmap"><img src="${base(s)}/overview.jpg" alt="整張玻片低倍全景">${picks.map((c,i)=>`<div class="box" style="left:${c.c/G*100}%;top:${c.r/H*100}%;width:${100/G}%;height:${100/H}%"><b>${'ABC'[i]}</b></div>`).join('')}</div><figcaption>答案揭曉：整張玻片低倍全景，黃框是本題三格的位置（點圖放大）</figcaption>`;
@@ -240,5 +240,5 @@ window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exp
 window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 saveSession();stats();next();
 </script>
-<script src="learning-mode.js?v=5"></script><script src="mode-switches.js?v=1"></script></body>
+<script src="learning-mode.js?v=6"></script><script src="mode-switches.js?v=1"></script></body>
 </html>

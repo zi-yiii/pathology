@@ -10,3 +10,4 @@ header{height:76px;background:#f4f3ef;color:var(--ink);border-bottom:1px solid v
 @media print{.exam-guide-nav,.guide-scope-note,.study-entry,.context-note{display:none}.content-grid>section,.warning,.teacher,.cross{border:0;padding:10px}.layout{display:block}}
 
 @media(min-width:761px) and (max-width:900px){#menu{display:block}.scope{display:none}.layout{display:block}#sidebar{display:none;position:fixed;top:76px;left:0;bottom:0;width:min(340px,90vw);height:auto;z-index:19;box-shadow:8px 0 25px #26344522}#sidebar.open{display:block}main{padding:24px}.grid{grid-template-columns:1fr 1fr}.panel-head h2{font-size:19px}}
+.teacher summary,.warning summary{font-size:20px;font-weight:600;color:var(--ink);min-height:44px;cursor:pointer}.teacher[open] summary,.warning[open] summary{margin-bottom:14px}
