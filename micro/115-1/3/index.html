@@ -240,5 +240,5 @@ window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exp
 window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 saveSession();stats();next();
 </script>
-<script src="learning-descriptions.js?v=1"></script><script src="learning-mode.js?v=7"></script><script src="mode-switches.js?v=2"></script></body>
+<script src="learning-descriptions.js?v=1"></script><script src="learning-mode.js?v=8"></script><script src="mode-switches.js?v=2"></script></body>
 </html>
