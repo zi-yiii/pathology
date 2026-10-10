@@ -106,7 +106,7 @@ dialog::backdrop{background:#16121bdd}
 
 :root{--ink:#242626;--muted:#626969;--line:#dfe3e2;--paper:#f8f9f8;--card:#fff;--purple:#276b5b;--deep:#f8f9f8;--wash:#e9f1ee;--ok:#276b5b;--bad:#a44238;--hl:#d2ab29}body{display:grid;grid-template-columns:280px minmax(0,1fr);font-family:'Avenir Next','PingFang TC',sans-serif}.preview-nav{grid-column:1/-1}header{display:block;background:var(--paper);color:var(--ink);padding:40px 26px;border-right:1px solid var(--line)}header h1{font-weight:600}.controls{display:grid;gap:12px}.controls select,.controls button{width:100%;text-align:left;border-radius:6px}.stats{padding-top:22px;border-top:1px solid var(--line)}main{width:100%;padding:38px clamp(20px,4vw,64px);max-width:1300px}.qhead{margin:24px 0}.whole{border:0;border-radius:0;padding:0;background:transparent}.whole .map{max-width:800px}.answer-box{border-top:1px solid var(--line);padding-top:24px;margin-top:28px}.answer-box input{border-radius:4px}.whole figcaption{padding:12px 0}#coverage-note{max-width:66ch}.detail-grid{grid-template-columns:.8fr 1.2fr;gap:32px;padding:28px}#detailbox{border-radius:8px}.detail-map{border-radius:4px}.reveal{border-radius:6px}@media(max-width:900px){body{grid-template-columns:220px minmax(0,1fr)}header{padding:28px 18px}}@media(max-width:760px){body{display:block}header{border-right:0;border-bottom:1px solid var(--line);padding:20px 16px}.controls{display:flex}.controls select,.controls button{width:auto}.stats{width:100%;padding-top:12px}.exam-links{margin:12px 0}main{padding:20px 16px}.detail-grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="learning-mode.css?v=2"><link rel="stylesheet" href="workspace-ui.css?v=2"></head>
+<link rel="stylesheet" href="learning-mode.css?v=3"><link rel="stylesheet" href="workspace-ui.css?v=2"></head>
 <body>
 <nav class="preview-nav"><a href="./" class="home-icon" aria-label="回主頁" title="回主頁"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m3 10 9-7 9 7v10H7V10m10 10v-7h-5v7"/></svg></a><span class="preview-tag">Micro · 115-1 · 第 3 次</span></nav>
 <header>
@@ -171,7 +171,7 @@ let activeRoundKey="";function stats(){const items=session.items.filter(x=>x.rou
 function base(s){return s.assetBase||`slides/${s.id}`}
 function src(s,c,hi){return `${base(s)}/r${c.r}c${c.c}.jpg`}
 function drawSlide(p){
- const key=[$('#scope').value||'all',$('#mode').value,''].join('|'), allowed=new Set(p.map(s=>s.id));
+ const learningDraw=document.querySelector('#practice-kind')?.value==='learn'||(!document.querySelector('#practice-kind')&&new URLSearchParams(location.search).get('practice')==='learn');const key=[learningDraw?'learning':'quiz',$('#scope').value||'all',$('#mode').value,''].join('|'), allowed=new Set(p.map(s=>s.id));
  let decks=get('decks',{});if(!decks||typeof decks!=='object'||Array.isArray(decks))decks={};
  let d=decks[key];if(!d||!Array.isArray(d.seen)||!Array.isArray(d.left))d={seen:[],left:[],round:1};
  d.seen=[...new Set(d.seen.filter(id=>typeof id==='string'))];d.left=[...new Set(d.left.filter(id=>allowed.has(id)&&!d.seen.includes(id)))];
@@ -239,5 +239,5 @@ window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exp
 window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 saveSession();stats();next();
 </script>
-<script src="learning-mode.js?v=2"></script><script src="mode-switches.js?v=1"></script></body>
+<script src="learning-mode.js?v=3"></script><script src="mode-switches.js?v=1"></script></body>
 </html>
