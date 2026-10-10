@@ -152,7 +152,7 @@ dialog::backdrop{background:#16121bdd}
 <script>
 'use strict';
 const Q=window.QUIZ_DATA.filter(s=>s.exam===1),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const GUIDE='https://zi-yiii.github.io/pathology-slide-guide/#';
+const GUIDE='https://zi-yiii.github.io/pathology/guide/#';
 let requestedSlide=new URLSearchParams(location.search).get('slide');
 const get=(k,d)=>{try{return JSON.parse(localStorage.getItem('quiz:'+k))??d}catch{return d}},put=(k,v)=>{try{localStorage.setItem('quiz:'+k,JSON.stringify(v))}catch{}};
 let session=get('session',null);if(!session||!Array.isArray(session.items))session={start:new Date().toISOString(),items:[],exported:true};
@@ -239,5 +239,5 @@ window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exp
 window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 saveSession();stats();next();
 </script>
-<script src="learning-mode.js?v=3"></script><script src="mode-switches.js?v=1"></script></body>
+<script src="learning-mode.js?v=4"></script><script src="mode-switches.js?v=1"></script></body>
 </html>
