@@ -106,11 +106,11 @@ dialog::backdrop{background:#16121bdd}
 
 :root{--ink:#242626;--muted:#626969;--line:#dfe3e2;--paper:#f8f9f8;--card:#fff;--purple:#276b5b;--deep:#f8f9f8;--wash:#e9f1ee;--ok:#276b5b;--bad:#a44238;--hl:#d2ab29}body{display:grid;grid-template-columns:280px minmax(0,1fr);font-family:'Avenir Next','PingFang TC',sans-serif}.preview-nav{grid-column:1/-1}header{display:block;background:var(--paper);color:var(--ink);padding:40px 26px;border-right:1px solid var(--line)}header h1{font-weight:600}.controls{display:grid;gap:12px}.controls select,.controls button{width:100%;text-align:left;border-radius:6px}.stats{padding-top:22px;border-top:1px solid var(--line)}main{width:100%;padding:38px clamp(20px,4vw,64px);max-width:1300px}.qhead{margin:24px 0}.whole{border:0;border-radius:0;padding:0;background:transparent}.whole .map{max-width:800px}.answer-box{border-top:1px solid var(--line);padding-top:24px;margin-top:28px}.answer-box input{border-radius:4px}.whole figcaption{padding:12px 0}#coverage-note{max-width:66ch}.detail-grid{grid-template-columns:.8fr 1.2fr;gap:32px;padding:28px}#detailbox{border-radius:8px}.detail-map{border-radius:4px}.reveal{border-radius:6px}@media(max-width:900px){body{grid-template-columns:220px minmax(0,1fr)}header{padding:28px 18px}}@media(max-width:760px){body{display:block}header{border-right:0;border-bottom:1px solid var(--line);padding:20px 16px}.controls{display:flex}.controls select,.controls button{width:auto}.stats{width:100%;padding-top:12px}.exam-links{margin:12px 0}main{padding:20px 16px}.detail-grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="learning-mode.css?v=2"></head>
+<link rel="stylesheet" href="learning-mode.css?v=2"><link rel="stylesheet" href="workspace-ui.css?v=1"></head>
 <body>
-<nav class="preview-nav"><a href="./">← 病理刷題主頁</a><span class="preview-tag">Micro · 115-1 · 第 2 次</span></nav>
+<nav class="preview-nav"><a href="./" class="home-icon" aria-label="回主頁" title="回主頁"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m3 10 9-7 9 7v10H7V10m10 10v-7h-5v7"/></svg></a><span class="preview-tag">Micro · 115-1 · 第 2 次</span></nav>
 <header>
- <div class="brand-row"><div><span class="workspace-label">Micro · 115-1</span><h1>病理刷題</h1></div><nav class="exam-links" aria-label="切片考試"><a href="micro/115-1/1/">1</a><a href="micro/115-1/2/" aria-current="page">2</a><a href="micro/115-1/3/">3</a></nav></div>
+ <div class="brand-row"><div><span class="workspace-label">Micro · 115-1</span><h1>病理刷題</h1></div><nav class="exam-links" aria-label="切片考試"><a href="micro/115-1/1/">第一次</a><a href="micro/115-1/2/" aria-current="page">第二次</a><a href="micro/115-1/3/">第三次</a></nav></div>
  <div class="controls">
   <select id="scope" aria-label="出題範圍"><option value="">全部講次</option></select>
   <select id="view" aria-label="顯示方式"><option value="full">整片模式</option><option value="three">三格模式</option></select>
@@ -166,7 +166,8 @@ lessons.filter(([d])=>!d.startsWith('exam')).forEach(([d,l])=>$('#scope').add(ne
 $('#scope').value=new URLSearchParams(location.search).get('scope')||'exam2';if($('#scope').selectedIndex<0)$('#scope').value='';$('#scope').onchange=()=>{requestedSlide=null;put('scope',$('#scope').value);next()};$('#mode').onchange=next;if(get('viewVersion','')!=='circle-full-1'){put('view','full');put('viewVersion','circle-full-1')}$('#view').value=get('view','full');$('#view').onchange=()=>{put('view',$('#view').value);render()};
 function pool(){let p=Q.filter(s=>!$('#scope').value||s.date===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value);if($('#mode').value==='wrong'){const w=p.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0));p=w}return p}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function stats(){let ok=0,bad=0;Object.values(rec).forEach(r=>{ok+=r.ok||0;bad+=r.bad||0});const pending=Q.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0)).length;$('#stats').textContent=`累計 ${ok} 對 / ${bad} 錯 · 待重跑 ${pending} · ${Q.length} 張玻片`;$('#clear-wrong').disabled=!pending}
+let activeRoundKey="";function stats(){const items=session.items.filter(x=>x.roundKey===activeRoundKey),ok=items.filter(x=>x.grade==='對').length,bad=items.filter(x=>x.grade==='錯').length;const pending=Q.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0)).length;$('#stats').textContent=`本輪 ${ok} 對 / ${bad} 錯
+待重跑 ${pending} · 本次考試 ${Q.length} 張`;$('#clear-wrong').disabled=!pending}
 function base(s){return s.assetBase||`slides/${s.id}`}
 function src(s,c,hi){return `${base(s)}/r${c.r}c${c.c}.jpg`}
 function drawSlide(p){
@@ -180,7 +181,7 @@ function drawSlide(p){
  const id=d.left.shift();d.seen.push(id);decks[key]=d;put('decks',decks);
  return {slide:p.find(s=>s.id===id),round:d.round,index:d.seen.filter(id=>allowed.has(id)).length,total:p.length};
 }
-function next(){const p=pool();if(!p.length){cur=null;$('#free-whole').hidden=true;$('#qtitle').textContent=$('#mode').value==='wrong'?'這個範圍沒有錯題':'這個範圍沒有題目';$('#qhelp').textContent='請切換講次或出題方式。';$('#tiles').innerHTML='';$('#whole').hidden=$('#full').hidden=true;$('#reveal').className='reveal';$('#show').disabled=true;return}const draw=drawSlide(p),s=draw.slide;cur=s;n++;
+function next(){const p=pool();if(!p.length){cur=null;$('#free-whole').hidden=true;$('#qtitle').textContent=$('#mode').value==='wrong'?'這個範圍沒有錯題':'這個範圍沒有題目';$('#qhelp').textContent='請切換講次或出題方式。';$('#tiles').innerHTML='';$('#whole').hidden=$('#full').hidden=true;$('#reveal').className='reveal';$('#show').disabled=true;return}const draw=drawSlide(p),s=draw.slide;cur=s;n++;activeRoundKey=[s.exam,$('#scope').value,$('#mode').value,draw.round].join('|');
  picks=shuffle(s.cells).slice(0,3);zoom=1;revealed=false;
  $('#qtitle').textContent=`第 ${draw.round} 輪 · ${draw.index} / ${draw.total}`;
  $('#organ').value='';$('#dx').value='';$('#reveal').className='reveal';$('#reveal').innerHTML='';$('#show').disabled=false;$('#organ').focus({preventScroll:true});window.scrollTo({top:0});
@@ -211,7 +212,7 @@ $('#m-pick').onclick=()=>{const cell=modal?.c||null;$('#lightbox').close();Detai
 $('#m-lo').onclick=()=>setHi(false);$('#m-hi').onclick=()=>setHi(true);$('#m-close').onclick=()=>$('#lightbox').close();
 $('#form').onsubmit=e=>{e.preventDefault();const s=cur;$('#show').disabled=true;
  const full=$('#view').value==='full';
- session.items.push({t:new Date().toISOString(),id:s.id,organ:s.organ,dx:s.diagnosis,myOrgan:$('#organ').value.trim(),myDx:$('#dx').value.trim(),grade:'',view:s.lectureOnly?'講義視野':full?'整片':'三格',cells:full?'全部':picks.map(c=>`r${c.r+1}c${c.c+1}`).join(' ')});session.exported=false;saveSession();
+ session.items.push({roundKey:activeRoundKey,t:new Date().toISOString(),id:s.id,organ:s.organ,dx:s.diagnosis,myOrgan:$('#organ').value.trim(),myDx:$('#dx').value.trim(),grade:'',view:s.lectureOnly?'講義視野':full?'整片':'三格',cells:full?'全部':picks.map(c=>`r${c.r+1}c${c.c+1}`).join(' ')});session.exported=false;saveSession();
  const item=session.items[session.items.length-1];
  revealed=true;if(!full)$('#whole').hidden=false;
  const mine=($('#organ').value||$('#dx').value)?`<div class="mine">你的答案：${esc($('#organ').value)||'—'} ／ ${esc($('#dx').value)||'—'}</div>`:'';
