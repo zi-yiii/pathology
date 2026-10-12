@@ -106,7 +106,7 @@ dialog::backdrop{background:#16121bdd}
 
 :root{--ink:#242626;--muted:#626969;--line:#dfe3e2;--paper:#f8f9f8;--card:#fff;--purple:#276b5b;--deep:#f8f9f8;--wash:#e9f1ee;--ok:#276b5b;--bad:#a44238;--hl:#d2ab29}body{display:grid;grid-template-columns:280px minmax(0,1fr);font-family:'Avenir Next','PingFang TC',sans-serif}.preview-nav{grid-column:1/-1}header{display:block;background:var(--paper);color:var(--ink);padding:40px 26px;border-right:1px solid var(--line)}header h1{font-weight:600}.controls{display:grid;gap:12px}.controls select,.controls button{width:100%;text-align:left;border-radius:6px}.stats{padding-top:22px;border-top:1px solid var(--line)}main{width:100%;padding:38px clamp(20px,4vw,64px);max-width:1300px}.qhead{margin:24px 0}.whole{border:0;border-radius:0;padding:0;background:transparent}.whole .map{max-width:800px}.answer-box{border-top:1px solid var(--line);padding-top:24px;margin-top:28px}.answer-box input{border-radius:4px}.whole figcaption{padding:12px 0}#coverage-note{max-width:66ch}.detail-grid{grid-template-columns:.8fr 1.2fr;gap:32px;padding:28px}#detailbox{border-radius:8px}.detail-map{border-radius:4px}.reveal{border-radius:6px}@media(max-width:900px){body{grid-template-columns:220px minmax(0,1fr)}header{padding:28px 18px}}@media(max-width:760px){body{display:block}header{border-right:0;border-bottom:1px solid var(--line);padding:20px 16px}.controls{display:flex}.controls select,.controls button{width:auto}.stats{width:100%;padding-top:12px}.exam-links{margin:12px 0}main{padding:20px 16px}.detail-grid{grid-template-columns:1fr}}
 </style>
-<link rel="stylesheet" href="learning-mode.css?v=usability2"><link rel="stylesheet" href="workspace-ui.css?v=description1"></head>
+<link rel="stylesheet" href="learning-mode.css?v=usability2"><link rel="stylesheet" href="workspace-ui.css?v=description2"></head>
 <body>
 <nav class="preview-nav"><a href="./" class="home-icon" aria-label="回主頁" title="回主頁"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m3 10 9-7 9 7v10H7V10m10 10v-7h-5v7"/></svg></a><span class="preview-tag">Micro · 115-1 · 第 2 次</span></nav>
 <header>
@@ -131,7 +131,7 @@ dialog::backdrop{background:#16121bdd}
   <div><label for="organ">Organ</label><input id="organ" placeholder="e.g. Lung"></div>
   <div><label for="dx">Diagnosis</label><input id="dx" placeholder="e.g. Cryptococcosis"></div>
   <button class="primary" type="submit" id="show">看答案</button>
-  <details class="description-entry"><summary>Description</summary><label class="sr-description" for="description">觀察描述</label><textarea id="description" rows="3" placeholder="記下你看到的組織、細胞或其他特徵"></textarea></details>
+  <div class="description-entry"><label for="description">Description</label><textarea id="description" rows="2" placeholder="記下你看到的組織、細胞或其他特徵"></textarea></div>
  </form>
  <p class="note" id="qnote"></p>
  <section class="reveal" id="reveal" aria-live="polite"></section>

@@ -6,3 +6,5 @@
 main{margin:0 auto;align-self:start;min-width:0}
 
 .description-entry{grid-column:1/-1;border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}.description-entry summary{cursor:pointer;padding:10px 14px;min-height:44px;color:var(--muted);font-weight:600}.description-entry textarea{display:block;width:calc(100% - 28px);margin:0 14px 14px;resize:vertical;min-height:96px;max-height:280px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font:inherit;line-height:1.6;color:var(--ink);background:var(--paper)}.sr-description{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.my-description{white-space:pre-wrap;overflow-wrap:anywhere}.my-description p{margin:6px 0 16px}textarea:focus-visible{outline:3px solid var(--purple);outline-offset:2px}
+
+.description-entry{border:0;background:transparent;overflow:visible}.description-entry>label{margin-bottom:6px}.description-entry textarea{width:100%;margin:0;min-height:76px;background:var(--card)}
