@@ -18,4 +18,4 @@ Review the changes, commit, and push to `main`. This repository already publishe
 
 Individual learning pages support `?embed=1` to hide site navigation for embedding.
 
-The shared semester entry uses the existing pathology palette. Micro remains organized by slide-exam number; pharmacology uses course Blocks.
+Semester and subject navigation share a consistent structure; pharmacology keeps its own minimal white UI. Micro remains organized by slide-exam number; pharmacology uses course Blocks.
