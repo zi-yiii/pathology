@@ -241,5 +241,5 @@ window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exp
 window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 const betaParams=new URLSearchParams(location.search);if(['full','three'].includes(betaParams.get('view')))$('#view').value=betaParams.get('view');if(['random','wrong'].includes(betaParams.get('mode')))$('#mode').value=betaParams.get('mode');saveSession();stats();next();
 </script>
-<script src="learning-descriptions.js?v=1"></script><script src="learning-mode.js?v=usability2"></script><script src="mode-switches.js?v=2"></script><script src="workspace-refresh.js?v=1"></script></body>
+<script src="learning-descriptions.js?v=1"></script><script src="learning-mode.js?v=20261013-zh"></script><script src="mode-switches.js?v=2"></script><script src="workspace-refresh.js?v=1"></script></body>
 </html>
