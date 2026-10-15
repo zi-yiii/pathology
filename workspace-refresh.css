@@ -18,3 +18,5 @@ body,body.learning{display:block!important}.preview-nav{padding:10px 24px;backgr
 
 /* Study material follows the panorama, independent of the settings drawer. */
 .learning main>#learning-panel{display:block;max-width:880px;margin:24px auto 0;padding:24px 0 0;border-top:1px solid var(--line)}.learning main>#learning-panel .learning-fold{border:0;margin:0;padding:0!important}.learning main>#learning-panel .learning-fold summary{font-size:16px;font-weight:600}.learning main>#learning-panel .feature{padding:14px 0}.learning main>#learning-panel .note h3{font-size:15px;margin-top:24px}.learning main>#learning-panel>a{display:inline-block;margin-top:20px;font-size:13px;color:var(--purple)}.beta-settings select{font-size:13px}
+
+.classroom-notes{border-top:1px solid var(--line);margin-top:20px;padding-top:10px}.classroom-notes>summary{min-height:44px;cursor:pointer;font-size:14px;font-weight:600}.classroom-item{padding:12px 0;border-bottom:1px solid var(--line)}.classroom-item p{margin:0 0 6px;font-size:14px;line-height:1.7}.classroom-item .note{font-size:13px;color:var(--muted)}
