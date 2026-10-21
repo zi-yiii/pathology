@@ -3,3 +3,6 @@
 :root{--paper:#fff;--card:#fbfcfd;--ink:#263445;--muted:#617286;--purple:#506e84;--accent:#506e84;--line:#dde4e9;--wash:#e6edf1;--deep:#edf2f5} :focus-visible{outline-color:#506e84!important}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,a:focus-visible{outline-color:#506e84!important}
 
 .hero .organ strong{font-family:inherit;font-size:15px;color:var(--muted)}
+
+/* Hover must not change image geometry or shift the reading content. */
+.imagebutton,.imagebutton:hover,.imagebutton:active{padding:8px 0;border:0;transform:none;transition:none;animation:none}.imagebutton img,.imagebutton:hover img{transform:none;transition:none;animation:none}
