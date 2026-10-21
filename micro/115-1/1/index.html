@@ -146,13 +146,14 @@ dialog::backdrop{background:#16121bdd}
  <div class="body" id="log-body"></div>
  <div class="acts"><button class="primary" id="log-csv">暫停並下載 CSV</button><button id="log-copy">複製文字</button><button id="log-new">開始新一輪</button><span class="note" id="log-msg"></span></div>
 </dialog>
-<script src="quiz-runtime.js?v=20261021-epithelial"></script>
+<script src="quiz-runtime.js?v=20261021-shared"></script>
 <script src="image-service.js?v=20261006-all35-34"></script>
 <script src="vendor/openseadragon/openseadragon.min.js"></script>
 <script src="selectable-20x.js?v=20261014-fast"></script>
 <script>
 'use strict';
-const Q=window.QUIZ_DATA.filter(s=>s.exam===1),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const belongsToExam=(s,e)=>s.exam===Number(e)||(s.additionalExams||[]).includes(Number(e));
+const Q=window.QUIZ_DATA.filter(s=>belongsToExam(s,1)),$=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const GUIDE='https://zi-yiii.github.io/pathology/guide/#';
 let requestedSlide=new URLSearchParams(location.search).get('slide');
 const get=(k,d)=>{try{return JSON.parse(localStorage.getItem('quiz:'+k))??d}catch{return d}},put=(k,v)=>{try{localStorage.setItem('quiz:'+k,JSON.stringify(v))}catch{}};
@@ -162,11 +163,11 @@ let revealed=false,rec=get('rec',{}),n=0,cur=null,picks=[],modal=null,zoom=1;
 const ZOOMS=[1,1.5,2,3,4],HELP={three:['只看同一張玻片隨機的三格作答；整張全景要按「看答案」後才出現，避免變成認低倍輪廓。點格子放大後，可選位置進入圓形視野；10×／40×使用同一圖片解析度。','有些格子可能只有正常組織，請綜合三格判斷。整張切成 3mm 正方形格，組織太少的格子不出題。'],
  full:['整張模式：把這張玻片所有可出題的格子拼回原位（約 4× 物鏡），可縮放、拖曳。點任一格可看大圖與圓形視野。','組織較少的格子以低倍全景補上，避免把未出題區域誤看成組織缺角。一題需載入二三十張圖，手機網路較慢。']};
 const lessons=[...new Map(Q.map(s=>[s.date,s.lesson])).entries()];
-for(const exam of [1])$('#scope').add(new Option(`第 ${exam} 次切片考試（${Q.filter(s=>s.exam===exam).length} 片）`,'exam'+exam));
+for(const exam of [1])$('#scope').add(new Option(`第 ${exam} 次切片考試（${Q.filter(s=>belongsToExam(s,exam)).length} 片）`,'exam'+exam));
 lessons.filter(([d])=>!d.startsWith('exam')).forEach(([d,l])=>$('#scope').add(new Option(`${d.slice(0,2)}/${d.slice(2)} · ${l}`,d)));
 $('#scope').value=new URLSearchParams(location.search).get('scope')||'exam1';if($('#scope').selectedIndex<0)$('#scope').value='';$('#scope').onchange=()=>{requestedSlide=null;put('scope',$('#scope').value);next()};$('#mode').onchange=next;if(get('viewVersion','')!=='circle-full-1'){put('view','full');put('viewVersion','circle-full-1')}$('#view').value=get('view','full');$('#view').onchange=()=>{put('view',$('#view').value);render()};
 function isLearning(){return document.querySelector('#practice-kind')?.value==='learn'||(!document.querySelector('#practice-kind')&&new URLSearchParams(location.search).get('practice')==='learn')}
-function pool(){let p=Q.filter(s=>!$('#scope').value||s.date===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value||('exam'+s.exam)===$('#scope').value);if(!isLearning()&&$('#mode').value==='wrong'){const w=p.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0));p=w}return p}
+function pool(){let p=Q.filter(s=>!$('#scope').value||s.date===$('#scope').value||($('#scope').value.startsWith('exam')&&belongsToExam(s,$('#scope').value.slice(4)))||($('#scope').value.startsWith('exam')&&belongsToExam(s,$('#scope').value.slice(4)))||($('#scope').value.startsWith('exam')&&belongsToExam(s,$('#scope').value.slice(4)))||($('#scope').value.startsWith('exam')&&belongsToExam(s,$('#scope').value.slice(4))));if(!isLearning()&&$('#mode').value==='wrong'){const w=p.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0));p=w}return p}
 function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
 let activeRoundKey="";function stats(){const items=session.items.filter(x=>x.roundKey===activeRoundKey),ok=items.filter(x=>x.grade==='對').length,bad=items.filter(x=>x.grade==='錯').length;const pending=Q.filter(s=>rec[s.id]?.pending??((rec[s.id]?.bad||0)>0)).length;$('#stats').textContent=`本輪 ${ok} 對 / ${bad} 錯
 待重跑 ${pending} · 本次考試 ${Q.length} 張`;$('#clear-wrong').disabled=!pending}
@@ -241,5 +242,5 @@ window.addEventListener('beforeunload',e=>{if(session.items.length&&!session.exp
 window.addEventListener('storage',e=>{if(e.key!=='quiz:rec')return;rec=get('rec',{});stats();if($('#mode').value==='wrong'&&(!cur||!(rec[cur.id]?.pending??((rec[cur.id]?.bad||0)>0))))next()});
 const betaParams=new URLSearchParams(location.search);if(['full','three'].includes(betaParams.get('view')))$('#view').value=betaParams.get('view');if(['random','wrong'].includes(betaParams.get('mode')))$('#mode').value=betaParams.get('mode');saveSession();stats();next();
 </script>
-<script src="learning-descriptions.js?v=20261021-epithelial"></script><script src="learning-mode.js?v=20261015-class"></script><script src="mode-switches.js?v=2"></script><script src="workspace-refresh.js?v=20261017-1"></script></body>
+<script src="learning-descriptions.js?v=20261021-epithelial"></script><script src="learning-mode.js?v=20261015-class"></script><script src="mode-switches.js?v=2"></script><script src="workspace-refresh.js?v=20261021-shared"></script></body>
 </html>
