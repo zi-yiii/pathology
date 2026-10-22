@@ -1,0 +1,10 @@
+.quiz-toolbar{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.toolbar-switch{display:inline-grid;grid-template-columns:1fr 1fr;gap:2px;flex:none;padding:3px;border-radius:9px;background:var(--wash)}
+.toolbar-switch button{min-height:38px;min-width:58px;padding:4px 14px;border:0;border-radius:7px;background:transparent;color:var(--muted);font-size:14px}
+.toolbar-switch button:hover{color:var(--ink)}
+.toolbar-switch button[aria-pressed=true]{background:var(--card);color:var(--ink);font-weight:600;box-shadow:0 1px 3px #2634491f}
+.toolbar-scope{min-height:42px;max-width:280px;min-width:0;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font-size:14px}
+.toolbar-progress{margin-left:auto;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.preview-nav .preview-tag{white-space:nowrap;max-width:none}
+@media(max-width:760px){.toolbar-scope{display:none}.quiz-toolbar{gap:8px}.toolbar-switch button{min-width:52px;padding:4px 10px}.preview-tag .tag-long{display:none}.preview-nav .preview-tag{font-size:13px}}
+@media(max-width:360px){.preview-nav .preview-tag{display:none}}
